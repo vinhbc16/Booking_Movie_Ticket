@@ -33,9 +33,18 @@ const deleteTheater = (id) => {
   return api.delete(`/theaters/${id}`)
 }
 
+/**
+ * Lấy 1 rạp cụ thể
+ * @param {string} id - ID của rạp
+ */
+const getTheater = (id) => {
+  return api.get(`/theaters/${id}`)
+}
+
 export const theaterService = {
   getTheaters,
   createTheater,
   updateTheater,
   deleteTheater,
+  getTheater
 }

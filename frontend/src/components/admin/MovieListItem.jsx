@@ -28,8 +28,17 @@ export function MovieListItem({ movie, onEdit, onDelete }) {
     }
   }
    console.log("Render phim:", movie.title, "| Poster URL là:", movie.posterUrl);
+
+   const handleDelete = (e) => {
+    // 3. Ngăn sự kiện "onEdit" của cha
+    e.stopPropagation()
+    onDelete()
+  }
+
   return (
-    <div className="flex items-center space-x-4 rounded-lg border bg-card p-4 shadow-sm animate-fade-in">
+    <div 
+    onClick={() => onEdit(movie)}
+    className="flex items-center space-x-4 rounded-lg border bg-card p-4 shadow-sm animate-fade-in cursor-pointer" >
       <img
         // 1. Dùng posterUrl
         src={movie.posterUrl || "https://via.placeholder.com/100x150?text=No+Image"}

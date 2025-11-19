@@ -11,15 +11,25 @@ const authenticationMiddleware = async (req, res, next) => {
 
     const token = authHeader.split(' ')[1];
 
-  try {
-    const payload = jwt.verify(token, process.env.JWT_SECRET);
-    const user = await User.findById(payload.userID).select('-password');
-    req.user = { userID: user._id , name: user.name };
-    next();
-    } catch (error) {
-        throw new UnauthenticatedError('Not authorized to access this route');
-    }
+   try {
+        const payload = jwt.verify(token, process.env.JWT_SECRET);
+        const user = await User.findById(payload.userID).select("-password");
 
+        if (!user) {
+            throw new UnauthenticatedError("User not found");
+        }
+
+        req.user = {
+            userID: user._id,
+            name: user.name,
+            email: user.email,
+            role: user.role,
+        };
+
+        next();
+    } catch (error) {
+        throw new UnauthenticatedError("Invalid or expired token");
+    }
 }
 
 module.exports = authenticationMiddleware;

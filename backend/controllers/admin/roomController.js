@@ -4,22 +4,24 @@ const mongoose = require('mongoose')
 const { BadRequestError , NotFoundError } = require('../errors/custom-error')
 
 const createRoom = async (req,res) => {
-    const { name , theater , numberOfRows , seatsPerRow } = req.body;
-    if( !name || !theater || !numberOfRows || !seatsPerRow ){
-        throw new BadRequestError('Please provide name , theater , numberOfRows and seatsPerRow')
+    const { theaterID } = req.params; 
+    const { name, numberOfRows, seatsPerRow } = req.body;
+    if( !name || !numberOfRows || !seatsPerRow ){
+        throw new BadRequestError('Please provide name, numberOfRows and seatsPerRow')
     }
-    const room = await Room.create({...req.body})
+    if( !theaterID ){
+        throw new BadRequestError('Theater ID is missing from URL')
+    }
+
+    const room = await Room.create({
+        ...req.body,
+        theater: theaterID
+    })
+
     res.status(201).json({msg: 'Create room successfully' , room: room})
 }
 
-// const getAllRooms = async (req,res) => {
-//     const { theaterID } = req.params;
-//     if( !theaterID ){
-//         throw new BadRequestError('Please provide theaterId')
-//     }
-//     const rooms = await Room.find({ theater: theaterID}).sort('-updatedAt')
-//     res.status(200).json({ count: rooms.length, roomsList: rooms })
-// }
+
 const getAllRooms = async (req,res) => {
     const { theaterID } = req.params;
     const { search, page = 1, limit = 5 } = req.query; // Thêm phân trang/search

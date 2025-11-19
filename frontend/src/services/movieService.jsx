@@ -36,9 +36,30 @@ const deleteMovie = (id) => {
   return api.delete(`/movies/${id}`)
 }
 
+
+// Hàm mới để lấy TẤT CẢ phim cho dropdown
+const getAllMovies = () => {
+  // Lấy 1000 phim (coi như là tất cả)
+  return api.get('/movies', { params: { limit: 1000 } }) 
+}
+
+// /**
+//  * Lấy phim đang chiếu cho trang chủ (ví dụ: 8 phim)
+//  */
+// const getShowingMovies = () => {
+//   return api.get('/movies', {
+//     params: {
+//       status: 'showing',
+//       limit: 8 
+//     }
+//   })
+// }
+
 export const movieService = {
   getMovies,
   createMovie,
   updateMovie,
   deleteMovie,
+  getAllMovies,
+  getShowingMovies
 }

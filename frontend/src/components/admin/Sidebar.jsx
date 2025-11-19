@@ -16,7 +16,6 @@ const navItems = [
   { to: 'dashboard', icon: LayoutDashboard, label: 'Dashboard' },
   { to: 'movies', icon: Film, label: 'Quản lý phim' },
   { to: 'theaters', icon: Building, label: 'Quản lý rạp' },
-  { to: 'rooms', icon: Video, label: 'Quản lý phòng chiếu' },
   { to: 'showtimes', icon: CalendarClock, label: 'Quản lý suất chiếu' },
   { to: 'users', icon: Users, label: 'Quản lý người dùng' },
 ]
@@ -43,6 +42,7 @@ const SidebarLink = ({ to, icon: Icon, label }) => {
   return (
     <NavLink
       to={to}
+      end // Thêm 'end' prop để 'dashboard' hoặc 'theaters' không bị active khi ở link con
       className={({ isActive }) =>
         cn(
           'flex items-center rounded-lg px-4 py-3 transition-colors duration-200',

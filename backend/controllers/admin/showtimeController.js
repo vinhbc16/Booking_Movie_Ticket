@@ -93,6 +93,35 @@ const getShowtimesByMovie = async (req,res) => {
     res.status(200).json({count: showtimes.length , showtimesList: showtimes})
 }
 
+
+const getAllShowtimes_Admin = async (req, res) => {
+    // Lọc theo Rạp và Ngày
+    const { theaterId, date } = req.query;
+    
+    if (!theaterId) {
+        throw new BadRequestError('Please provide theaterId');
+    }
+
+    const targetDate = date ? new Date(date) : new Date();
+    const startDay = startOfDay(targetDate);
+    const endDay = endOfDay(targetDate);
+
+    // 1. Tìm tất cả các phòng thuộc rạp này
+    const rooms = await Room.find({ theater: theaterId }).select('_id');
+    const roomIds = rooms.map(room => room._id);
+
+    // 2. Tìm tất cả suất chiếu thuộc các phòng đó VÀ trong ngày đã chọn
+    const showtimes = await Showtime.find({
+        room: { $in: roomIds },
+        startTime: { $gte: startDay, $lte: endDay }
+    })
+    .populate('movie', 'title duration posterUrl') // Lấy thông tin phim
+    .populate('room', 'name roomType') // Lấy thông tin phòng
+    .sort('startTime');
+
+    res.status(200).json({ count: showtimes.length, showtimesList: showtimes });
+}
+
 const getShowtimeById = async (req,res) => {
     const { params: { id : showtimeID } } = req;
     const showtime = await Showtime.findById(showtimeID)
@@ -134,5 +163,6 @@ module.exports = {
     getShowtimesByMovie,
     getShowtimeById,
     updateShowtime,
-    deleteShowtime
+    deleteShowtime,
+    getAllShowtimes_Admin
 }
