@@ -1,11 +1,15 @@
 import api from "@/lib/axios"
 
+
+const ADMIN_ENDPOINT = '/admin/showtimes'
+const PUBLIC_ENDPOINT = '/showtimes'
+
 /**
  * Lấy danh sách suất chiếu cho Admin (theo rạp và ngày)
  * @param {object} params - { theaterId: string, date: string (yyyy-MM-dd) }
  */
 const getAll = (params) => {
-  return api.get('/showtimes/admin', { params })
+  return api.get(ADMIN_ENDPOINT, { params })
 }
 
 /**
@@ -13,7 +17,7 @@ const getAll = (params) => {
  * @param {object} data - { movie, room, basePrice, startTime }
  */
 const create = (data) => {
-  return api.post('/showtimes', data)
+  return api.post(ADMIN_ENDPOINT, data)
 }
 
 /**
@@ -21,7 +25,7 @@ const create = (data) => {
  * @param {string} id - ID suất chiếu
  */
 const deleteShowtime = (id) => {
-  return api.delete(`/showtimes/${id}`)
+  return api.delete(`${ADMIN_ENDPOINT}/${id}`)
 }
 
 export const showtimeService = {

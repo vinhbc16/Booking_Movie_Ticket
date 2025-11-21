@@ -58,6 +58,13 @@ const MovieSchema = Schema({
     trailerUrl: {
         type: String,
         required: [true, 'Please provide trailer URL']
+    },
+    backdropUrl: {
+        type: String  
+    },
+    isFeatured: {
+        type: Boolean,
+        default: false
     }
 },{ timestamps: true })
 

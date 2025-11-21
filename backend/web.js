@@ -10,8 +10,15 @@ const theaterRoute = require('./routes/admin/theaterRoute')
 const roomRoute = require('./routes/admin/roomRoute')
 const showtimeRoute = require('./routes/admin/showtimeRoute')
 const authRoute = require('./routes/authRoute')
+const customerMovieRoute = require('./routes/customer/customerMovieRoute')
+const customerTheaterRoute = require('./routes/customer/customerTheaterRoute')
+const customerRoomRoute = require('./routes/customer/customerRoomRoute')
+const customerShowtimeRoute = require('./routes/customer/customerShowtimeRoute')
+const getFeaturedMoviesRoute = require('./routes/customer/getFeaturedMoviesRoute')
 const notFound = require('./middlewares/not-found')
 const errorHandlerMiddleware = require('./middlewares/error-handler')
+
+
 const PORT = process.env.PORT || 3000
 
 app.use(rateLimit({
@@ -32,6 +39,11 @@ app.use('/api/v1/admin/showtimes', showtimeRoute)
 app.use('/api/v1/admin/rooms', roomRoute)
 
 
+app.use('/api/v1/movies', customerMovieRoute)
+app.use('/api/v1/theaters', customerTheaterRoute)
+app.use('/api/v1/rooms', customerRoomRoute)
+app.use('/api/v1/showtimes', customerShowtimeRoute)
+app.use('/api/v1/featured-movies', getFeaturedMoviesRoute)
 
 app.use(notFound);
 app.use(errorHandlerMiddleware);

@@ -1,11 +1,14 @@
 import api from "@/lib/axios" // Dùng axios instance đã có interceptor
 
+const ADMIN_ENDPOINT = '/admin/theaters'
+const PUBLIC_ENDPOINT = '/theaters'
+
 /**
  * Lấy danh sách rạp (có phân trang/tìm kiếm)
  * @param {object} params - { page: number, search: string }
  */
 const getTheaters = (params) => {
-  return api.get('/theaters', { params })
+  return api.get(ADMIN_ENDPOINT, { params })
 }
 
 /**
@@ -13,7 +16,7 @@ const getTheaters = (params) => {
  * @param {object} theaterData - { name, address }
  */
 const createTheater = (theaterData) => {
-  return api.post('/theaters', theaterData)
+  return api.post(ADMIN_ENDPOINT, theaterData)
 }
 
 /**
@@ -22,7 +25,7 @@ const createTheater = (theaterData) => {
  * @param {object} theaterData - { name, address }
  */
 const updateTheater = (id, theaterData) => {
-  return api.put(`/theaters/${id}`, theaterData)
+  return api.put(`${ADMIN_ENDPOINT}/${id}`, theaterData)
 }
 
 /**
@@ -30,7 +33,7 @@ const updateTheater = (id, theaterData) => {
  * @param {string} id - ID của rạp
  */
 const deleteTheater = (id) => {
-  return api.delete(`/theaters/${id}`)
+  return api.delete(`${ADMIN_ENDPOINT}/${id}`)
 }
 
 /**
@@ -38,7 +41,7 @@ const deleteTheater = (id) => {
  * @param {string} id - ID của rạp
  */
 const getTheater = (id) => {
-  return api.get(`/theaters/${id}`)
+  return api.get(`${ADMIN_ENDPOINT}/${id}`)
 }
 
 export const theaterService = {

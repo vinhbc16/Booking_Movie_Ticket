@@ -1,7 +1,7 @@
-const Showtime = require('../models/Showtime')
-const Room = require('../models/Room')
+const Showtime = require('../../models/Showtime')
+const Room = require('../../models/Room')
 const mongoose = require('mongoose')
-const { BadRequestError , NotFoundError } = require('../errors/custom-error')
+const { BadRequestError , NotFoundError } = require('../../errors/custom-error')
 
 const createRoom = async (req,res) => {
     const { theaterID } = req.params; 
@@ -24,21 +24,18 @@ const createRoom = async (req,res) => {
 
 const getAllRooms = async (req,res) => {
     const { theaterID } = req.params;
-    const { search, page = 1, limit = 5 } = req.query; // Thêm phân trang/search
+    const { search, page = 1, limit = 5 } = req.query; 
 
     if( !theaterID ){
         throw new BadRequestError('Please provide theaterId')
     }
 
-    // Query cơ bản là theo theaterID
     const queryObject = { theater: theaterID };
 
-    // Thêm logic tìm kiếm (tìm theo tên phòng)
     if (search) {
       queryObject.name = { $regex: search, $options: 'i' };
     }
 
-    // Logic phân trang
     const pageNum = Number(page);
     const limitNum = Number(limit);
     const skip = (pageNum - 1) * limitNum;
@@ -48,7 +45,6 @@ const getAllRooms = async (req,res) => {
       .skip(skip)
       .limit(limitNum);
     
-    // Đếm tổng số phòng khớp
     const totalRooms = await Room.countDocuments(queryObject);
     const totalPages = Math.ceil(totalRooms / limitNum);
 

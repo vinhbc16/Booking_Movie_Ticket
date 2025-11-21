@@ -1,9 +1,9 @@
 const { startOfDay , endOfDay } = require('date-fns')
-const Showtime = require('../models/Showtime')
-const Movie = require('../models/Movie')
-const Room = require('../models/Room')
+const Showtime = require('../../models/Showtime')
+const Movie = require('../../models/Movie')
+const Room = require('../../models/Room')
 const mongoose = require('mongoose')
-const { BadRequestError , NotFoundError } = require('../errors/custom-error')
+const { BadRequestError , NotFoundError } = require('../../errors/custom-error')
 
 const createShowtime = async (req,res) => {
     const { movie , room , basePrice , startTime } = req.body;
@@ -95,7 +95,6 @@ const getShowtimesByMovie = async (req,res) => {
 
 
 const getAllShowtimes_Admin = async (req, res) => {
-    // Lọc theo Rạp và Ngày
     const { theaterId, date } = req.query;
     
     if (!theaterId) {
@@ -106,17 +105,15 @@ const getAllShowtimes_Admin = async (req, res) => {
     const startDay = startOfDay(targetDate);
     const endDay = endOfDay(targetDate);
 
-    // 1. Tìm tất cả các phòng thuộc rạp này
     const rooms = await Room.find({ theater: theaterId }).select('_id');
     const roomIds = rooms.map(room => room._id);
 
-    // 2. Tìm tất cả suất chiếu thuộc các phòng đó VÀ trong ngày đã chọn
     const showtimes = await Showtime.find({
         room: { $in: roomIds },
         startTime: { $gte: startDay, $lte: endDay }
     })
-    .populate('movie', 'title duration posterUrl') // Lấy thông tin phim
-    .populate('room', 'name roomType') // Lấy thông tin phòng
+    .populate('movie', 'title duration posterUrl') 
+    .populate('room', 'name roomType')
     .sort('startTime');
 
     res.status(200).json({ count: showtimes.length, showtimesList: showtimes });

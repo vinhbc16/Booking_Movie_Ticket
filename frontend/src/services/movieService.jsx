@@ -1,5 +1,8 @@
 import api from "@/lib/axios" // Sử dụng axios instance đã có interceptor
 
+const ADMIN_ENDPOINT = '/admin/movies'
+const PUBLIC_ENDPOINT = '/movies'
+
 /**
  * Lấy danh sách phim có phân trang và tìm kiếm
  * @param {object} params - { page: number, search: string }
@@ -7,7 +10,7 @@ import api from "@/lib/axios" // Sử dụng axios instance đã có interceptor
 const getMovies = (params) => {
   // api.get('/movies', { params: { page: 1, search: 'ten' } })
   // sẽ gọi -> http://localhost:3000/api/v1/movies?page=1&search=ten
-  return api.get('/movies', { params })
+  return api.get(ADMIN_ENDPOINT, { params })
 }
 
 /**
@@ -16,7 +19,7 @@ const getMovies = (params) => {
  */
 const createMovie = (movieData) => {
   // Gửi token tự động nhờ axios interceptor
-  return api.post('/movies', movieData)
+  return api.post(ADMIN_ENDPOINT, movieData)
 }
 
 /**
@@ -25,7 +28,7 @@ const createMovie = (movieData) => {
  * @param {object} movieData - Dữ liệu phim từ form
  */
 const updateMovie = (id, movieData) => {
-  return api.put(`/movies/${id}`, movieData)
+  return api.put(`${ADMIN_ENDPOINT}/${id}`, movieData)
 }
 
 /**
@@ -33,27 +36,29 @@ const updateMovie = (id, movieData) => {
  * @param {string} id - ID của phim
  */
 const deleteMovie = (id) => {
-  return api.delete(`/movies/${id}`)
+  return api.delete(`${ADMIN_ENDPOINT}/${id}`)
 }
 
 
 // Hàm mới để lấy TẤT CẢ phim cho dropdown
 const getAllMovies = () => {
   // Lấy 1000 phim (coi như là tất cả)
-  return api.get('/movies', { params: { limit: 1000 } }) 
+  return api.get(ADMIN_ENDPOINT, { params: { limit: 1000 } }) 
 }
 
-// /**
-//  * Lấy phim đang chiếu cho trang chủ (ví dụ: 8 phim)
-//  */
-// const getShowingMovies = () => {
-//   return api.get('/movies', {
-//     params: {
-//       status: 'showing',
-//       limit: 8 
-//     }
-//   })
-// }
+const getFeaturedMovies = () => {
+  return api.get('/featured-movies') 
+}
+
+const getShowingMovies = () => {
+  return api.get('/movies', { 
+    params: { 
+      status: 'showing', // Lọc theo phim đang chiếu
+      limit: 8           // Lấy 8 phim để hiển thị đẹp grid
+    } 
+  })
+}
+
 
 export const movieService = {
   getMovies,
@@ -61,5 +66,6 @@ export const movieService = {
   updateMovie,
   deleteMovie,
   getAllMovies,
+  getFeaturedMovies,
   getShowingMovies
 }

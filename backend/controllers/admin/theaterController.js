@@ -1,8 +1,8 @@
-const Showtime = require('../models/Showtime');
-const Theater = require('../models/Theater');
-const Room = require('../models/Room')
+const Showtime = require('../../models/Showtime');
+const Theater = require('../../models/Theater');
+const Room = require('../../models/Room')
 const mongoose = require('mongoose');
-const { NotFoundError , BadRequestError } = require('../errors/custom-error');
+const { NotFoundError , BadRequestError } = require('../../errors/custom-error');
 
 
 const createTheater = async (req, res) => {
@@ -14,16 +14,10 @@ const createTheater = async (req, res) => {
     res.status(201).json({msg: 'Create theater successfully' , theater: theater});
 }
 
-// const getAllTheater = async (req, res) => {
-//   const theaters = await Theater.find().sort('-updatedAt');
-//   res.status(200).json({ count: theaters.length, theatersList: theaters });
-// }
 const getAllTheater = async (req, res) => {
-  const { search, page = 1, limit = 10 } = req.query; // Nhận query params
+  const { search, page = 1, limit = 10 } = req.query;
 
   const queryObject = {};
-
-  // Thêm logic tìm kiếm (tìm theo tên hoặc địa chỉ)
   if (search) {
     queryObject.$or = [
       { name: { $regex: search, $options: 'i' } },
@@ -31,12 +25,10 @@ const getAllTheater = async (req, res) => {
     ];
   }
 
-  // Logic phân trang
   const pageNum = Number(page);
   const limitNum = Number(limit);
   const skip = (pageNum - 1) * limitNum;
 
-  // Thực thi query
   let result = Theater.find(queryObject)
     .sort('-updatedAt')
     .skip(skip)
@@ -44,14 +36,13 @@ const getAllTheater = async (req, res) => {
 
   const theaters = await result;
 
-  // Lấy tổng số document để tính totalPages
   const totalTheaters = await Theater.countDocuments(queryObject);
   const totalPages = Math.ceil(totalTheaters / limitNum);
 
   res.status(200).json({
     totalCount: totalTheaters,
     count: theaters.length,
-    theatersList: theaters, // Giống BE của bạn
+    theatersList: theaters,
     totalPages: totalPages,
     currentPage: pageNum,
   });
