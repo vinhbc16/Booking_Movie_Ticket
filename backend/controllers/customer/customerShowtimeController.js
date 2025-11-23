@@ -7,35 +7,69 @@ const { BadRequestError } = require('../../errors/custom-error')
 const getAllShowtimeCustomer = async (req,res) => {
     const { movieId , theaterId } = req.query
     let { date: dateString } = req.query
-    if( !movieId || !theaterId ){
-        throw new BadRequestError('Please provide movieId and theaterId')
+    if( !movieId ){
+        throw new BadRequestError('Please provide movieId')
     }
     const date = dateString ? new Date(dateString) : new Date()
     const startDay = startOfDay(date)
     const endDay = endOfDay(date)
     
+    const matchQuery = {
+        'movie': new mongoose.Types.ObjectId(movieId),
+        'startTime': { $gte: startDay, $lte: endDay }
+    }
+
+    // Nếu có theaterId thì lọc thêm, không thì lấy hết
+    if (theaterId) {
+        matchQuery['roomInfo.theater'] = new mongoose.Types.ObjectId(theaterId)
+    }
+
     const showtimes = await Showtime.aggregate([
         {
             $lookup: {
-                from: 'rooms', 
+                from: 'rooms',
                 localField: 'room',
                 foreignField: '_id',
                 as: 'roomInfo'
             }
         },
+        { $unwind: '$roomInfo' },
         {
-            $unwind: '$roomInfo'
-        },
-        {
-            $match: {
-                'movie': new mongoose.Types.ObjectId(movieId),
-                'roomInfo.theater': new mongoose.Types.ObjectId(theaterId),
-                'startTime': { $gte: startDay , $lte: endDay}
+            $lookup: { // Join thêm bảng Theater để lấy tên rạp
+                from: 'theaters',
+                localField: 'roomInfo.theater',
+                foreignField: '_id',
+                as: 'theaterInfo'
             }
         },
+        { $unwind: '$theaterInfo' },
         {
-            $sort: { 'startTime': 1 }
-        }
+            $match: matchQuery
+        },
+        {
+            $project: { // Chọn các trường cần lấy
+                _id: 1,
+                startTime: 1,
+                endTime: 1,
+                basePrice: 1,
+                room: '$roomInfo.name', // Lấy tên phòng
+                roomType: '$roomInfo.roomType',
+                theaterName: '$theaterInfo.name', // Lấy tên rạp
+                theaterId: '$theaterInfo._id',
+                // Tính số ghế trống
+                totalSeats: { $size: '$seats' },
+                bookedSeats: {
+                    $size: {
+                        $filter: {
+                            input: '$seats',
+                            as: 'seat',
+                            cond: { $eq: ['$$seat.status', 'booked'] }
+                        }
+                    }
+                }
+            }
+        },
+        { $sort: { 'startTime': 1 } }
     ])
     res.status(200).json({count: showtimes.length , showtimesList: showtimes})
 }

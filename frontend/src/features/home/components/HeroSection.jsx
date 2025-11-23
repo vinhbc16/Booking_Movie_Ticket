@@ -73,11 +73,11 @@ export function HeroSection() {
       ))}
 
       {/* --- CONTENT (Thiết kế lại theo style ảnh mẫu) --- */}
-      <div className="absolute bottom-0 left-0 z-20 flex h-full w-full flex-col justify-center px-6 pb-10 md:px-16 md:pb-16 lg:w-2/3 transform translate-y-[20%]">
+      <div className="absolute bottom-0 left-0 z-20 flex h-full w-full flex-col justify-center px-6 pb-10 md:px-16 md:pb-16 lg:w-2/3 transform translate-y-[25%]">
         <div className="animate-fade-in space-y-5">
           
           {/* 1. TIÊU ĐỀ: In hoa, Font to, Đậm */}
-          <h1 className="text-5xl max-w-xl font-extrabold uppercase leading-tight tracking-tight md:text-5xl drop-shadow-xl">
+          <h1 className="text-5xl max-w-xl font-extrabold uppercase leading-tight tracking-tight md:text-4xl drop-shadow-xl">
             {currentMovie.title}
           </h1>
 
@@ -117,17 +117,16 @@ export function HeroSection() {
           {/* 5. BUTTONS (Giữ tính năng cũ nhưng style lại chút cho hợp nền đen) */}
           <div className="flex flex-wrap gap-4 pt-2 transform">
             <Button 
-              size="lg" 
+              size="md" 
               className="h-12 rounded-full bg-[#F5C518] px-8 text-lg font-bold text-black hover:bg-[#dcb015] transition-transform hover:scale-105"
-              onClick={() => navigate(`/booking/${currentMovie._id}`)}
-            >
+              onClick={() => navigate(`/movie/${currentMovie._id}`, { state: { scrollToBooking: true } })}            >
               <Play className="mr-2 h-5 w-5 fill-current" />
               Đặt vé ngay
             </Button>
             
             <Button 
               variant="outline" 
-              size="lg" 
+              size="md" 
               className="h-12 rounded-full border-2 border-white/30 bg-white/10 px-8 text-lg font-bold text-white hover:bg-white/20 backdrop-blur-md transition-transform hover:scale-105"
               onClick={() => navigate(`/movie/${currentMovie._id}`)}
             >

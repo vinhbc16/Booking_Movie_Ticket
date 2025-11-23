@@ -36,8 +36,13 @@ function Sidebar() {
       
       {/* Header Sidebar */}
       <div className="flex h-16 items-center justify-center border-b border-sidebar-border shadow-sm">
-        <Ticket className="h-8 w-8 text-primary" />
-        <h1 className="ml-2 text-2xl font-bold">Admin</h1>
+        {/* <Ticket className="h-8 w-8 text-primary" />
+        <h1 className="ml-2 text-2xl font-bold">Admin</h1> */}
+        <img 
+            src="/logo.png" 
+            alt="Admin Logo" 
+            className="h-10 w-auto object-contain" 
+        />
       </div>
 
       {/* Menu Items (flex-1 để chiếm khoảng trống còn lại) */}

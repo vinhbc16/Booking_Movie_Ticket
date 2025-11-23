@@ -8,8 +8,16 @@ export function CustomerFooter() {
         {/* Cột 1: Logo */}
         <div className="col-span-2 md:col-span-1">
           <div className="flex items-center gap-2">
-            <Ticket className="h-8 w-8 text-primary" />
-            <span className="text-2xl font-bold text-white">MyTicket</span>
+            {/* <Ticket className="h-8 w-8 text-primary" />
+            <span className="text-2xl font-bold text-white">MyTicket</span> */}
+            <div className="flex items-center gap-2 mb-4">
+            <img 
+              src="/logo.png" 
+              alt="Logo" 
+              // Thêm bg-white để logo nổi bật trên nền tối của footer
+              className="h-14 w-auto object-contain bg-white rounded-md px-2 py-1" 
+            />
+          </div>
           </div>
           <p className="mt-4 text-sm">
             Nền tảng đặt vé xem phim hàng đầu Việt Nam.

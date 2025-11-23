@@ -59,6 +59,33 @@ const getShowingMovies = () => {
   })
 }
 
+const getComingSoonMovies = () => {
+  return api.get(PUBLIC_ENDPOINT, { 
+    params: { status: 'coming_soon', limit: 12 }
+  })
+}
+
+const searchMovies = (query) => {
+  return api.get(PUBLIC_ENDPOINT, {
+    params: {
+      search: query,
+      limit: 5 // Chỉ lấy 5 kết quả gợi ý cho nhẹ
+    }
+  })
+}
+
+/**
+ * [PUBLIC] Lấy danh sách phim công khai với bộ lọc
+ * @param {object} params - { status, genre, search, page, limit }
+ */
+const getPublicMovies = (params) => {
+  return api.get(PUBLIC_ENDPOINT, { params })
+}
+
+const getMovieDetail = (id) => {
+  return api.get(`${PUBLIC_ENDPOINT}/${id}`)
+}
+
 
 export const movieService = {
   getMovies,
@@ -67,5 +94,9 @@ export const movieService = {
   deleteMovie,
   getAllMovies,
   getFeaturedMovies,
-  getShowingMovies
+  getShowingMovies,
+  searchMovies,
+  getComingSoonMovies,
+  getPublicMovies,
+  getMovieDetail
 }

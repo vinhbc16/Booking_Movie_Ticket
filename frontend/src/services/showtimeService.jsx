@@ -28,8 +28,17 @@ const deleteShowtime = (id) => {
   return api.delete(`${ADMIN_ENDPOINT}/${id}`)
 }
 
+/**
+ * Lấy suất chiếu public (cho trang chi tiết phim)
+ * @param {object} params - { movieId, date (yyyy-MM-dd) }
+ */
+const getShowtimesByMovie = (params) => {
+  return api.get(PUBLIC_ENDPOINT, { params })
+}
+
 export const showtimeService = {
   getAll,
   create,
   deleteShowtime,
+  getShowtimesByMovie
 }
