@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router'
 import { Play, Info, ChevronRight, ChevronLeft, Calendar, Clock } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { movieService } from '@/services/movieService'
+import { motion, AnimatePresence } from 'framer-motion'
 
 export function HeroSection() {
   const [movies, setMovies] = useState([])
@@ -50,16 +51,23 @@ export function HeroSection() {
     <div className="relative h-[100vh] w-full overflow-hidden bg-black text-white group">
       
       {/* --- BACKGROUND IMAGE --- */}
-      {movies.map((movie, index) => (
-        <div
-          key={movie._id}
-          className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${
-            index === currentIndex ? 'opacity-100' : 'opacity-0'
-          }`}
+        <AnimatePresence mode='wait'>
+
+        <motion.div
+          // key={movie._id}
+          // className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${
+          //   index === currentIndex ? 'opacity-100' : 'opacity-0'
+          // }`}
+          key={currentIndex} // Key thay đổi thì animation chạy lại
+          initial={{ opacity: 0, scale: 1.1 }} // Bắt đầu: Mờ và hơi phóng to
+          animate={{ opacity: 1, scale: 1 }}    // Kết thúc: Rõ và về kích thước chuẩn
+          exit={{ opacity: 0 }}                 // Khi biến mất: Mờ dần
+          transition={{ duration: 0.7 }}        // Thời gian chạy
+          className="absolute inset-0"
         >
           <img
-            src={movie.backdropUrl || movie.posterUrl}
-            alt={movie.title}
+            src={currentMovie.backdropUrl || currentMovie.posterUrl}
+            alt={currentMovie.title}
             className="h-full w-full object-cover object-center" 
           />
           
@@ -69,20 +77,34 @@ export function HeroSection() {
           */}
           <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
           <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/20 to-transparent" />
-        </div>
-      ))}
+        </motion.div>
+        </AnimatePresence>
 
       {/* --- CONTENT (Thiết kế lại theo style ảnh mẫu) --- */}
       <div className="absolute bottom-0 left-0 z-20 flex h-full w-full flex-col justify-center px-6 pb-10 md:px-16 md:pb-16 lg:w-2/3 transform translate-y-[25%]">
-        <div className="animate-fade-in space-y-5">
+        <motion.div 
+        // Key thay đổi để text chạy lại animation khi đổi slide
+          key={currentMovie?._id} 
+          initial={{ opacity: 0 }} 
+          animate={{ opacity: 1 }} 
+          exit={{ opacity: 0 }}
+          
+          // Thời gian chạy: 1 giây, delay nhẹ 0.2s để chờ ảnh nền hiện trước một chút
+          transition={{ duration: 1, delay: 0.6 }}
+        className="animate-fade-in space-y-5"
+        >
           
           {/* 1. TIÊU ĐỀ: In hoa, Font to, Đậm */}
-          <h1 className="text-5xl max-w-xl font-extrabold uppercase leading-tight tracking-tight md:text-4xl drop-shadow-xl">
+          <motion.h1
+          variants={{ hidden: { y: 20, opacity: 0 }, visible: { y: 0, opacity: 1 } }}
+          className="text-5xl max-w-xl font-extrabold uppercase leading-tight tracking-tight md:text-4xl drop-shadow-xl">
             {currentMovie.title}
-          </h1>
+          </motion.h1>
 
           {/* 2. META TAGS (Hàng thông tin dạng hộp) */}
-          <div className="flex flex-wrap items-center gap-3 text-sm font-bold md:text-base transform">
+          <motion.div 
+          variants={{ hidden: { y: 20, opacity: 0 }, visible: { y: 0, opacity: 1 } }}
+          className="flex flex-wrap items-center gap-3 text-sm font-bold md:text-base transform">
             {/* Rating Box (Vàng - Giống IMDb trong ảnh mẫu) */}
             <div className="rounded border border-[#F5C518] bg-[#F5C518] px-2 py-0.5 text-black text-xs">
               {currentMovie.ageRating}
@@ -102,20 +124,26 @@ export function HeroSection() {
             <div className="rounded border border-white/40 bg-transparent px-2 py-0.5 text-white text-xs">
               {currentMovie.status === 'showing' ? 'Showing' : 'Coming Soon'}
             </div>
-          </div>
+          </motion.div>
 
           {/* 3. THỂ LOẠI (Dạng text xám/trắng nhạt) */}
-          <div className="text-base font-medium text-gray-300 md:text-lg transform">
+          <motion.div 
+          variants={{ hidden: { y: 20, opacity: 0 }, visible: { y: 0, opacity: 1 } }}
+          className="text-base font-medium text-gray-300 md:text-lg transform">
             {genres}
-          </div>
+          </motion.div>
 
           {/* 4. MÔ TẢ */}
-          <p className="line-clamp-3 max-w-2xl text-sm font-normal text-gray-200 leading-relaxed drop-shadow-md transform">
+          <motion.p 
+          variants={{ hidden: { y: 20, opacity: 0 }, visible: { y: 0, opacity: 1 } }}
+          className="line-clamp-3 max-w-2xl text-sm font-normal text-gray-200 leading-relaxed drop-shadow-md transform">
             {currentMovie.description}
-          </p>
+          </motion.p>
 
           {/* 5. BUTTONS (Giữ tính năng cũ nhưng style lại chút cho hợp nền đen) */}
-          <div className="flex flex-wrap gap-4 pt-2 transform">
+          <motion.div 
+          variants={{ hidden: { y: 20, opacity: 0 }, visible: { y: 0, opacity: 1 } }}
+          className="flex flex-wrap gap-4 pt-2 transform">
             <Button 
               size="md" 
               className="h-12 rounded-full bg-[#F5C518] px-8 text-lg font-bold text-black hover:bg-[#dcb015] transition-transform hover:scale-105"
@@ -133,8 +161,8 @@ export function HeroSection() {
               <Info className="mr-2 h-5 w-5" />
               Chi tiết
             </Button>
-          </div>
-        </div>
+          </motion.div>
+        </motion.div>
       </div>
 
       {/* --- NAVIGATION ARROWS --- */}

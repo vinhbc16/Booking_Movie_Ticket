@@ -195,8 +195,8 @@ export default function MovieDetailPage() {
         </div>
       </div>
 
-      {/* --- 3. BOOKING SECTION (Placeholder - Sẽ làm tiếp) --- */}
-      <div ref={bookingSectionRef} id="booking-section" className="container mx-auto px-4 mt-12 pt-12 border-t">
+      {/* --- 3. BOOKING SECTION --- */}
+      <div ref={bookingSectionRef} id="booking-section" className="container mx-auto px-14 mt-12 pt-12 border-t">
          <h2 className="text-2xl font-bold mb-6 uppercase border-l-4 border-[#F5C518] pl-3">
             Lịch Chiếu
          </h2>

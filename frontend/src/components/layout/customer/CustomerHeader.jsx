@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button'
 import { useAuth } from '@/context/AuthContext' // 1. Import Context
 import { useLocation } from 'react-router' // 1. Import hook 
 import { MovieSearch } from './MovieSearch'
-
+import { motion } from 'framer-motion'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -53,7 +53,13 @@ export function CustomerHeader() {
     : "text-gray-700 hover:bg-gray-100 hover:text-primary";
 
   return (
-    <header 
+    <motion.header
+    // Trạng thái ban đầu: Dịch lên trên 100% (khuất màn hình) và mờ
+      initial={{ y: -100, opacity: 0 }}
+      // Trạng thái đích: Về vị trí 0 và rõ nét
+      animate={{ y: 0, opacity: 1 }}
+      // Cấu hình: Chạy trong 0.5s
+      transition={{ duration: 1 }}
       className={`fixed top-0 z-50 w-full transition-all duration-300 ${
         isHomePage 
           ? (isScrolled ? 'bg-background/95 shadow-sm backdrop-blur supports-[backdrop-filter]:bg-background/60' : 'bg-transparent bg-gradient-to-b from-black/70 to-transparent')
@@ -124,6 +130,6 @@ export function CustomerHeader() {
           )}
         </div>
       </div>
-    </header>
+    </motion.header>
   )
 }

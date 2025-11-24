@@ -56,6 +56,7 @@ const getAllShowtimeCustomer = async (req,res) => {
                 roomType: '$roomInfo.roomType',
                 theaterName: '$theaterInfo.name', // Lấy tên rạp
                 theaterId: '$theaterInfo._id',
+                theaterAddress: '$theaterInfo.address',
                 // Tính số ghế trống
                 totalSeats: { $size: '$seats' },
                 bookedSeats: {

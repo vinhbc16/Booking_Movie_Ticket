@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router'
 import { Clock, Play, Calendar } from 'lucide-react' // Thêm icon Calendar
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
+import { motion } from 'framer-motion' // 1. Import
 
 // Helper format ngày khởi chiếu
 const formatDate = (dateString) => {
@@ -10,7 +11,7 @@ const formatDate = (dateString) => {
   return `${date.getDate()}.${date.getMonth() + 1}.${date.getFullYear()}`
 }
 
-export function MovieCard({ movie }) {
+export function MovieCard({ movie , index }) {
   const navigate = useNavigate()
   
   const displayGenres = Array.isArray(movie.genre) 
@@ -27,7 +28,19 @@ export function MovieCard({ movie }) {
   }
 
   return (
-    <div className="group relative flex h-full flex-col overflow-hidden rounded-xl bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg border border-gray-100">
+    <motion.div 
+    // Trạng thái ban đầu: mờ và nằm thấp xuống 50px
+      initial={{ opacity: 0, y: 60 }}
+      
+      // Khi cuộn tới (vào tầm nhìn): hiện rõ và trồi lên vị trí gốc
+      whileInView={{ opacity: 1, y: 0.5 }}
+      
+      // Cấu hình viewport: once: true (chỉ chạy 1 lần đầu, cuộn lên không bị ẩn đi lại)
+      viewport={{ once: true, margin: "-50px" }}
+      
+      // Thời gian chạy: delay dựa theo index (nếu có) để các card hiện so le nhau
+      transition={{ duration: 0.5, delay: index ? index * 0.1 : 0 }}
+    className="group relative flex h-full flex-col overflow-hidden rounded-xl bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg border border-gray-100">
       
       {/* --- 1. POSTER --- */}
       <div className="relative aspect-[2/3] overflow-hidden cursor-pointer" onClick={() => navigate(`/movie/${movie._id}`)}>
@@ -101,6 +114,6 @@ export function MovieCard({ movie }) {
 
         </div>
       </div>
-    </div>
+    </motion.div>
   )
 }

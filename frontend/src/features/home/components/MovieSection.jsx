@@ -37,10 +37,10 @@ export function MovieSection({ title, movies, linkToAll, background = "bg-white"
             className="w-full"
           >
             <CarouselContent className="-ml-4">
-              {movies.map((movie) => (
+              {movies.map((movie,idx) => (
                 <CarouselItem key={movie._id} className="pl-4 md:basis-1/2 lg:basis-1/4">
                   <div className="h-full p-1">
-                    <MovieCard movie={movie} />
+                    <MovieCard movie={movie} index={idx}/>
                   </div>
                 </CarouselItem>
               ))}
