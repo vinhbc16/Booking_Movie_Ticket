@@ -12,9 +12,9 @@ import { Label } from "@/components/ui/label"
 
 export function SignUpForm() {
   const [formData, setFormData] = useState({
-    username: "",
+    name: "",
     email: "",
-    phone: "", // <-- THÊM MỚI
+    phone: "", 
     password: "",
     confirmPassword: "",
   })
@@ -36,40 +36,55 @@ export function SignUpForm() {
     setIsLoading(true)
 
     // Tách các trường cần gửi đi (không gửi confirmPassword)
-    const { username, email, password, phone } = formData
+    const { name, email, password, phone } = formData
 
+    // Có thể sử dụng cấu hình toast như bên login cho phép chỉnh thời gian log riêng biệt
     toast.promise(
       // 🚀 SỬ DỤNG SERVICE TẠI ĐÂY
-      authService.register({ username, email, password, phone }),
+      authService.register({ name, email, password, phone }),
       {
         loading: "Đang tạo tài khoản...",
         success: (response) => {
-          // Giả sử API trả về { message: "..." } hoặc data
-          return response.data?.message || "Tạo tài khoản thành công! Vui lòng đăng nhập."
+          // Giả sử API trả về { msg: "..." } hoặc data
+          return response.data?.msg || "Tạo tài khoản thành công! Vui lòng đăng nhập."
         },
         error: (err) => {
-          return err.response?.data?.message || "Đăng ký thất bại!"
+          console.log("Lỗi Backend trả về:", err.response?.data);
+          
+          // Ưu tiên 1: Lấy 'msg' từ Backend middleware của bạn
+          if (err.response?.data?.msg) {
+            return err.response.data.msg;
+          }
+          
+          // Ưu tiên 2: Lấy 'message' (nếu có thư viện nào khác trả về)
+          if (err.response?.data?.message) {
+            return err.response.data.message;
+          }
+
+          // Ưu tiên 3: Lỗi mạng hoặc lỗi không xác định
+          return err.message || "Đăng ký thất bại! Vui lòng thử lại.";
         },
         finally: () => {
           setIsLoading(false)
-        },
+        }
       }
     )
   }
+
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       {/* Username Input */}
       <div className="space-y-2">
-        <Label htmlFor="username">Tên người dùng</Label>
+        <Label htmlFor="name">Tên người dùng</Label>
         <div className="relative">
           <User className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input
-            id="username"
-            placeholder="nguyenvanA"
+            id="name"
+            placeholder="Nguyen Van A"
             required
             className="pl-10"
-            value={formData.username}
+            value={formData.name}
             onChange={handleChange}
             disabled={isLoading}
           />
@@ -84,7 +99,7 @@ export function SignUpForm() {
           <Input
             id="email"
             type="email"
-            placeholder="email@example.com"
+            placeholder="nguyenvana@gmail.com"
             required
             className="pl-10"
             value={formData.email}

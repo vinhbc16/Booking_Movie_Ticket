@@ -11,6 +11,7 @@ import AdminProtectedRoute from "@/features/auth/components/AdminProtectedRoute"
 import HomePage from "@/pages/HomePage" 
 import MoviesPage from "@/pages/MoviesPage" // 1. Import
 import MovieDetailPage from "@/pages/MovieDetailPage" // Import mới
+import ProfilePage from "@/pages/ProfilePage" // 1. Import
 // Admin Features
 import MovieManagement from "@/features/admin/movies/MovieManagement"
 import TheaterManagement from "@/features/admin/theaters/TheaterManagement"
@@ -30,6 +31,7 @@ function App() {
           <Route path="/" element={<HomePage />} />
           <Route path="/movies" element={<MoviesPage />} />
           <Route path="/movie/:id" element={<MovieDetailPage />} />
+          <Route path="/profile" element={<ProfilePage />} />
         </Route>
         {/* Auth Route */}
         <Route path="/auth" element={<AuthPage />} />

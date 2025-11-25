@@ -29,40 +29,48 @@ export function LoginForm() {
     e.preventDefault()
     setIsLoading(true)
 
-    const loginPromise = authService.login(formData) // Tách promise ra
+    // 1. Hiển thị loading và LƯU LẠI ID của nó
+    const toastId = toast.loading("Đang đăng nhập...")
 
-    toast.promise(
-      loginPromise, // Dùng promise ở đây
-      {
-        loading: "Đang đăng nhập...",
-        success: (response) => {
-          // 3. THÊM LOGIC XỬ LÝ KHI THÀNH CÔNG
-          
-          // Lấy token và user từ response
-          const { token, user } = response.data 
+    try {
+      // 2. Gọi API (dùng await để đợi kết quả)
+      const response = await authService.login(formData)
+      
+      // --- NẾU THÀNH CÔNG (Chạy xuống đây) ---
+      const { token, user } = response.data 
+      login(token, user);
 
-          login(token, user);
-
-          // Điều hướng dựa trên role
-          if (user.role === 'admin') {
-            navigate('/admin')
-          } else if (user.role === 'staff') {
-            navigate('/staff') // (Hoặc route của staff)
-          } else {
-            navigate('/') // (Route của customer/trang chủ)
-          }
-
-          // Trả về thông báo cho toast
-          return `Chào mừng trở lại, ${user.username}!`
-        },
-        error: (err) => {
-          return err.response?.data?.message || "Đăng nhập thất bại!"
-        },
-        finally: () => {
-          setIsLoading(false)
-        },
+      // Điều hướng
+      if (user.role === 'admin') {
+        navigate('/admin')
+      } else if (user.role === 'staff') {
+        navigate('/staff') 
+      } else {
+        navigate('/') 
       }
-    )
+
+      // 3. Cập nhật Toast thành SUCCESS
+      toast.success(`Chào mừng trở lại, ${user.name}!`, {
+        id: toastId,     // Quan trọng: Dùng lại ID cũ để thay thế dòng Loading
+        duration: 4000,  // 🕒 Thành công chỉ cần hiện 3 giây
+      })
+
+    } catch (err) {
+      // --- NẾU CÓ LỖI (Chạy vào đây) ---
+      const errorMsg = 
+        err.response?.data?.msg || 
+        err.response?.data?.message || 
+        "Đăng nhập thất bại! Vui lòng kiểm tra lại."
+
+      // 4. Cập nhật Toast thành ERROR
+      toast.error(errorMsg, {
+        id: toastId,      // Quan trọng: Dùng lại ID cũ
+        duration: 7000,  // 🕒 Lỗi hiện 7 GIÂY (hoặc lâu hơn tùy bạn)
+      })
+
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   return (
