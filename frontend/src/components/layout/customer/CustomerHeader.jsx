@@ -2,10 +2,10 @@ import React, { useState, useEffect } from 'react'
 import { Ticket, User , LogOut, Settings } from 'lucide-react'
 import { useNavigate, Link } from 'react-router'
 import { Button } from '@/components/ui/button'
-import { useAuth } from '@/context/AuthContext' // 1. Import Context
 import { useLocation } from 'react-router' // 1. Import hook 
 import { MovieSearch } from './MovieSearch'
 import { motion } from 'framer-motion'
+import { useAuthStore } from '@/store/useAuthStore'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -24,7 +24,8 @@ const navItems = [
 export function CustomerHeader() {
   const navigate = useNavigate()
 
-  const { user, logout } = useAuth() // 2. Lấy user và logout từ Context
+  const user = useAuthStore((state) => state.user) 
+  const logout = useAuthStore((state) => state.logout)
 
   const handleLogout = () => {
     logout()
@@ -105,7 +106,7 @@ export function CustomerHeader() {
               <DropdownMenuTrigger asChild>
                 <Button variant="outline" className="gap-2">
                   <User className="h-4 w-4" />
-                  <span className="hidden md:inline">{user.username || "Tài khoản"}</span>
+                  <span className="hidden md:inline">{user.name || "Tài khoản"}</span>
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
@@ -114,11 +115,11 @@ export function CustomerHeader() {
                 <DropdownMenuItem onClick={() => navigate('/profile')}>
                   <Settings className="mr-2 h-4 w-4" /> Hồ sơ
                 </DropdownMenuItem>
-                {user.role === 'admin' && (
+                {/* {user.role === 'admin' && (
                    <DropdownMenuItem onClick={() => navigate('/admin')}>
                      <Ticket className="mr-2 h-4 w-4" /> Trang quản trị
                    </DropdownMenuItem>
-                )}
+                )} */}
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={handleLogout} className="text-destructive focus:text-destructive">
                   <LogOut className="mr-2 h-4 w-4" /> Đăng xuất

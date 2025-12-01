@@ -1,115 +1,76 @@
-import React, { useState } from "react"
-import { Mail, Lock } from "lucide-react"
+import React from "react"
+import { useForm } from "react-hook-form"
+import { zodResolver } from "@hookform/resolvers/zod"
+import * as z from "zod"
+import { useNavigate } from "react-router"
 import { toast } from "sonner"
-import { useNavigate } from "react-router" // 1. IMPORT HOOK NÀY
-import { useAuth } from "@/context/AuthContext" // 1. Import Hook
-
-// Import service của chúng ta
-import { authService } from "@/services/authService"
+import { Loader2 } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
+import { authService } from "@/services/authService"
+import { useAuthStore } from "@/store/useAuthStore"
+
+const formSchema = z.object({
+  email: z.string().email("Email không hợp lệ"),
+  password: z.string().min(1, "Vui lòng nhập mật khẩu"),
+})
 
 export function LoginForm() {
-  const navigate = useNavigate() // 2. KHỞI TẠO HOOK
-  const { login } = useAuth() // 2. Lấy hàm login
-  const [formData, setFormData] = useState({
-    email: "",
-    password: "",
+  const navigate = useNavigate()
+  const setAuth = useAuthStore((state) => state.setAuth)
+
+  const form = useForm({
+    resolver: zodResolver(formSchema),
+    defaultValues: { email: "", password: "" },
   })
-  const [isLoading, setIsLoading] = useState(false)
 
-  const handleChange = (e) => {
-    const { id, value } = e.target
-    setFormData((prev) => ({ ...prev, [id]: value }))
-  }
-
-  const handleSubmit = async (e) => {
-    e.preventDefault()
-    setIsLoading(true)
-
-    // 1. Hiển thị loading và LƯU LẠI ID của nó
-    const toastId = toast.loading("Đang đăng nhập...")
-
+  const onSubmit = async (values) => {
     try {
-      // 2. Gọi API (dùng await để đợi kết quả)
-      const response = await authService.login(formData)
+      const res = await authService.customerLogin(values)
+      const { accessToken, user } = res.data
       
-      // --- NẾU THÀNH CÔNG (Chạy xuống đây) ---
-      const { token, user } = response.data 
-      login(token, user);
-
-      // Điều hướng
-      if (user.role === 'admin') {
-        navigate('/admin')
-      } else if (user.role === 'staff') {
-        navigate('/staff') 
-      } else {
-        navigate('/') 
-      }
-
-      // 3. Cập nhật Toast thành SUCCESS
-      toast.success(`Chào mừng trở lại, ${user.name}!`, {
-        id: toastId,     // Quan trọng: Dùng lại ID cũ để thay thế dòng Loading
-        duration: 4000,  // 🕒 Thành công chỉ cần hiện 3 giây
-      })
-
-    } catch (err) {
-      // --- NẾU CÓ LỖI (Chạy vào đây) ---
-      const errorMsg = 
-        err.response?.data?.msg || 
-        err.response?.data?.message || 
-        "Đăng nhập thất bại! Vui lòng kiểm tra lại."
-
-      // 4. Cập nhật Toast thành ERROR
-      toast.error(errorMsg, {
-        id: toastId,      // Quan trọng: Dùng lại ID cũ
-        duration: 7000,  // 🕒 Lỗi hiện 7 GIÂY (hoặc lâu hơn tùy bạn)
-      })
-
-    } finally {
-      setIsLoading(false)
+      setAuth(user, accessToken)
+      toast.success(`Xin chào, ${user.name}!`)
+      
+      navigate('/')
+      
+    } catch (error) {
+      toast.error(error.response?.data?.msg || "Đăng nhập thất bại")
     }
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
-      <div className="space-y-2">
-        <Label htmlFor="email">Email</Label>
-        <div className="relative">
-          <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-          <Input
-            id="email"
-            type="email"
-            placeholder="email@example.com"
-            required
-            className="pl-10"
-            value={formData.email}
-            onChange={handleChange}
-            disabled={isLoading}
-          />
-        </div>
-      </div>
-      <div className="space-y-2">
-        <Label htmlFor="password">Mật khẩu</Label>
-        <div className="relative">
-          <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-          <Input
-            id="password"
-            type="password"
-            placeholder="••••••••"
-            required
-            className="pl-10"
-            value={formData.password}
-            onChange={handleChange}
-            disabled={isLoading}
-          />
-        </div>
-      </div>
-      <Button type="submit" className="w-full" disabled={isLoading}>
-        {isLoading ? "Đang xử lý..." : "Đăng nhập"}
-      </Button>
-    </form>
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+        <FormField
+          control={form.control}
+          name="email"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Email</FormLabel>
+              <FormControl><Input placeholder="email@example.com" {...field} /></FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="password"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Mật khẩu</FormLabel>
+              <FormControl><Input type="password" {...field} /></FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <Button type="submit" className="w-full" disabled={form.formState.isSubmitting}>
+          {form.formState.isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+          Đăng nhập
+        </Button>
+      </form>
+    </Form>
   )
 }

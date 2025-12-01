@@ -1,21 +1,24 @@
 import React from 'react'
 import { Navigate, Outlet } from 'react-router'
-
-// Giả sử sau khi đăng nhập, bạn lưu role vào localStorage
-const useAuth = () => {
-  // Thay thế logic này bằng logic xác thực thật của bạn
-  const user = { role: 'admin' } // GIẢ LẬP ĐĂNG NHẬP ADMIN
-  // const userRole = localStorage.getItem('userRole'); 
-  // if (userRole === 'admin') return true;
-  return user.role === 'admin'
-}
+import { useAuthStore } from '@/store/useAuthStore'
 
 const AdminProtectedRoute = () => {
-  const isAdmin = useAuth()
+  const user = useAuthStore((state) => state.user)
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated)
+  const isCheckingAuth = useAuthStore((state) => state.isCheckingAuth)
 
-  // Nếu là admin, cho phép truy cập.
-  // <Outlet /> sẽ render bất cứ route con nào (vd: AdminLayout)
-  return isAdmin ? <Outlet /> : <Navigate to="/auth" />
+  // Nếu đang check token (lúc F5), hiện loading hoặc null
+  if (isCheckingAuth) {
+      return null; 
+  }
+
+  // Đã check xong, nếu đúng admin thì cho vào
+  if (isAuthenticated && user?.role === 'admin') {
+    return <Outlet />
+  }
+
+  // Không phải admin -> đá về trang login admin
+  return <Navigate to="/admin/login" replace />
 }
 
 export default AdminProtectedRoute

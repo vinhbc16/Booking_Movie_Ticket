@@ -1,22 +1,18 @@
 import api from "@/lib/axios"
 
-/**
- * Gửi request đăng nhập
- * @param {object} credentials - { email, password }
- */
-const login = (credentials) => {
-  return api.post("/auth/login", credentials)
-}
+// Customer APIs
+const customerLogin = (credentials) => api.post("/auth/login", credentials)
+const customerRegister = (userData) => api.post("/auth/register", userData)
+const customerLogout = () => api.post("/auth/logout")
 
-/**
- * Gửi request đăng ký
- * @param {object} userData - { username, email, password, phone }
- */
-const register = (userData) => {
-  return api.post("/auth/register", userData)
-}
+// Admin APIs
+const adminLogin = (credentials) => api.post("/admin/auth/login", credentials)
+const adminLogout = () => api.post("/admin/auth/logout") // Lưu ý backend phải có route này
 
 export const authService = {
-  login,
-  register,
+  customerLogin,
+  customerRegister,
+  customerLogout,
+  adminLogin,
+  adminLogout,
 }

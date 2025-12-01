@@ -46,7 +46,7 @@ UserSchema.pre('save', async function() {
     this.password = await bcrypt.hash(this.password,salt);
 });
 
-UserSchema.methods.createJWT = function() {
+UserSchema.methods.createJWT = async function() {
     const token = jwt.sign({ userID: this._id , name: this.name, role: this.role}, process.env.JWT_SECRET, { expiresIn: process.env.JWT_LIFETIME });
     return token;
 }

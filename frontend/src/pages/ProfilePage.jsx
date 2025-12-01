@@ -1,9 +1,8 @@
 import React from 'react'
-import { useAuth } from '@/context/AuthContext'
-
+import { useAuthStore } from '@/store/useAuthStore'
 export default function ProfilePage() {
-  const { user } = useAuth()
-
+  
+  const user = useAuthStore((state) => state.user)
   if (!user) return <div>Vui lòng đăng nhập</div>
 
   return (

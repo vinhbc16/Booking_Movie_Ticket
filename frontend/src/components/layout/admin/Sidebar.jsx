@@ -10,8 +10,7 @@ import {
   LogOut // Thêm icon LogOut
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import { useAuth } from '@/context/AuthContext' // 1. Import AuthContext
-
+import { useAuthStore } from '@/store/useAuthStore'
 // Danh sách các mục menu (Đã xóa Room vì logic nested route)
 const navItems = [
   { to: 'dashboard', icon: LayoutDashboard, label: 'Dashboard' },
@@ -22,7 +21,7 @@ const navItems = [
 ]
 
 function Sidebar() {
-  const { logout } = useAuth() // 2. Lấy hàm logout
+  const logout = useAuthStore((state) => state.logout)  
   const navigate = useNavigate()
 
   const handleLogout = () => {
