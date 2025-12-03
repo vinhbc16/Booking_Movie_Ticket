@@ -14,7 +14,6 @@ const register = async (req, res) => {
   const user = await User.create({...req.body})
   res.status(201).json({ 
       msg: 'user register successfully', 
-      token, 
       user: {
           userID: user._id,
           name: user.name,

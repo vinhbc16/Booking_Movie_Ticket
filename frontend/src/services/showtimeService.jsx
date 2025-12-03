@@ -36,9 +36,14 @@ const getShowtimesByMovie = (params) => {
   return api.get(PUBLIC_ENDPOINT, { params })
 }
 
+const getShowtimeDetail = (id) => {
+  return api.get(`${PUBLIC_ENDPOINT}/${id}`)
+}
+
 export const showtimeService = {
   getAll,
   create,
   deleteShowtime,
-  getShowtimesByMovie
+  getShowtimesByMovie,
+  getShowtimeDetail
 }

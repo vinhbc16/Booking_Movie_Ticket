@@ -26,6 +26,7 @@ export function CustomerHeader() {
 
   const user = useAuthStore((state) => state.user) 
   const logout = useAuthStore((state) => state.logout)
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated)
 
   const handleLogout = () => {
     logout()
@@ -101,7 +102,7 @@ export function CustomerHeader() {
         <div className="flex items-center gap-3">
           <MovieSearch className={itemClass}/>
           {/* 3. Kiểm tra user tồn tại để hiển thị UI tương ứng */}
-          {user ? (
+          {user && isAuthenticated ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="outline" className="gap-2">

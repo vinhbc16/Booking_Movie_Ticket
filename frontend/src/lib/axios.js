@@ -30,7 +30,7 @@ api.interceptors.response.use(
     const originalRequest = error.config
 
     // Nếu lỗi 401 và chưa từng thử lại
-    if (error.response?.status === 401 && !originalRequest._retry) {
+    if (error.response?.status === 401 && !originalRequest._retry && !originalRequest.url.includes('/auth/refresh-token')) {
       originalRequest._retry = true 
 
       try {

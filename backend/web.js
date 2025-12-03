@@ -1,8 +1,9 @@
 require('dotenv').config()
-const express = require('express')
-const app = express()
 const connectDB = require('./db/connect')
+const express = require('express')
+const { server , io , app } = require('./socket/socket')
 const cors = require('cors')
+const { connectRedis } = require('./db/redis')
 const helmet = require('helmet')
 const rateLimit = require('express-rate-limit')
 const movieRoute = require('./routes/admin/movieRoute')
@@ -24,10 +25,10 @@ const authCustomerRoute = require('./routes/customer/authCustomerRoute')
 const PORT = process.env.PORT || 3000
 
 app.use(cors({
-    origin: 'http://localhost:5173', 
-    credentials: true,              
+    origin: 'http://localhost:5173',
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization']
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    credentials: true 
 }));
 app.use(rateLimit({
     windowMs: 15*60*1000,
@@ -59,8 +60,8 @@ app.use(errorHandlerMiddleware);
 const start = async () => {
     try{
         await connectDB(process.env.MONGO_URI);
-        // console.log('Connected to MongoDB Atlas...')
-        app.listen(PORT,() => {
+        await connectRedis();
+        server.listen(PORT,() => {
             console.log(`Server is listening on port ${PORT}`)
         })
     } catch(error) {

@@ -6,6 +6,7 @@ import { BrowserRouter , Routes , Route , Navigate } from "react-router"
 // Auth
 import AuthPage from "@/features/auth/AuthPage"
 import AdminProtectedRoute from "@/features/auth/components/AdminProtectedRoute"
+import CustomerProtectedRoute from "@/features/auth/components/CustomerProtectedRoute"
 
 // Customer Pages (Vẫn giữ ở pages vì chưa refactor feature home, hoặc bạn có thể chuyển nốt)
 import HomePage from "@/pages/HomePage" 
@@ -13,6 +14,7 @@ import MoviesPage from "@/pages/MoviesPage" // 1. Import
 import MovieDetailPage from "@/pages/MovieDetailPage" // Import mới
 import ProfilePage from "@/pages/ProfilePage" // 1. Import
 import AdminLoginPage from "@/features/auth/AdminLoginPage" // Import trang mới
+import BookingPage from "@/pages/BookingPage"
 // Admin Features
 import MovieManagement from "@/features/admin/movies/MovieManagement"
 import TheaterManagement from "@/features/admin/theaters/TheaterManagement"
@@ -34,7 +36,10 @@ function App() {
           <Route path="/movies" element={<MoviesPage />} />
           <Route path="/movie/:id" element={<MovieDetailPage />} />
           <Route path="/profile" element={<ProfilePage />} />
-        </Route>\
+          <Route element={<CustomerProtectedRoute />}>
+            <Route path="/booking/:showtimeId" element={<BookingPage />} />
+          </Route>
+        </Route>
 
         {/* Customer Auth */}
         <Route path="/auth" element={<AuthPage />} />

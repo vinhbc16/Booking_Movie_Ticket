@@ -81,7 +81,7 @@ const getShowtimeCustomer = async (req,res) => {
         .populate('movie', 'title posterUrl duration ageRating')
         .populate({
             path: 'room',
-            select: 'name roomType theater', 
+            select: 'name roomType theater numberOfRows seatsPerRow status vipRows coupleRows', 
             populate: {
                 path: 'theater',
                 select: 'name address'
