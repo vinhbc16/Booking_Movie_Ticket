@@ -1,16 +1,14 @@
 import React, { useState, useEffect } from 'react'
-import { useParams, useNavigate } from 'react-router' // Import hooks
+import { useParams, useNavigate } from 'react-router'
 import { toast } from 'sonner'
 import { PlusCircle, Search, ArrowLeft } from 'lucide-react'
 
-// Import shadcn components
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from '@/components/ui/pagination'
 
-// Import services và components
 import { theaterService } from '@/services/theaterService' // Để lấy tên rạp
 import { roomService } from '@/services/roomService'
 import { RoomForm } from './components/RoomForm'

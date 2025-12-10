@@ -8,7 +8,7 @@ export function CustomerLayout() {
     <div className="flex min-h-screen flex-col">
       <CustomerHeader />
       <main className="flex-1 bg-background-secondary">
-        <Outlet /> {/* Các trang con sẽ render ở đây */}
+        <Outlet />
       </main>
       <CustomerFooter />
     </div>

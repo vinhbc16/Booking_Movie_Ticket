@@ -19,7 +19,6 @@ const getAllShowtimeCustomer = async (req,res) => {
         'startTime': { $gte: startDay, $lte: endDay }
     }
 
-    // Nếu có theaterId thì lọc thêm, không thì lấy hết
     if (theaterId) {
         matchQuery['roomInfo.theater'] = new mongoose.Types.ObjectId(theaterId)
     }
@@ -35,7 +34,7 @@ const getAllShowtimeCustomer = async (req,res) => {
         },
         { $unwind: '$roomInfo' },
         {
-            $lookup: { // Join thêm bảng Theater để lấy tên rạp
+            $lookup: { 
                 from: 'theaters',
                 localField: 'roomInfo.theater',
                 foreignField: '_id',
@@ -47,14 +46,14 @@ const getAllShowtimeCustomer = async (req,res) => {
             $match: matchQuery
         },
         {
-            $project: { // Chọn các trường cần lấy
+            $project: { 
                 _id: 1,
                 startTime: 1,
                 endTime: 1,
                 basePrice: 1,
-                room: '$roomInfo.name', // Lấy tên phòng
+                room: '$roomInfo.name', 
                 roomType: '$roomInfo.roomType',
-                theaterName: '$theaterInfo.name', // Lấy tên rạp
+                theaterName: '$theaterInfo.name', 
                 theaterId: '$theaterInfo._id',
                 theaterAddress: '$theaterInfo.address',
                 // Tính số ghế trống

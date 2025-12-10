@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react'
 import { toast } from 'sonner'
 import { PlusCircle, Search, Pencil, Trash2 } from 'lucide-react'
 
-// Import shadcn components
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
@@ -10,7 +9,6 @@ import { Badge } from '@/components/ui/badge'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from '@/components/ui/pagination'
 
-// Import service và form
 import { movieService } from '@/services/movieService'
 import { MovieForm } from './components/MovieForm'
 import { MovieItem } from './components/MovieItem'

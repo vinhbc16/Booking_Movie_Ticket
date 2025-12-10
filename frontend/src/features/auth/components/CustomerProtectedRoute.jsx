@@ -7,24 +7,27 @@ const CustomerProtectedRoute = () => {
   const user = useAuthStore((state) => state.user)
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated)
   const isCheckingAuth = useAuthStore((state) => state.isCheckingAuth)
-  const location = useLocation() // Lấy địa chỉ hiện tại (VD: /booking/123)
+  const location = useLocation()
 
-  // Đang check token (F5) thì không làm gì
+  // 1. Đang check token -> Hiện Loading
   if (isCheckingAuth) {
       return (
         <div className="flex h-screen w-full items-center justify-center bg-white">
-            <Loader2 className="h-10 w-10 animate-spin text-primary" />
+            <div className="flex flex-col items-center gap-2">
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                <span className="text-sm text-gray-500">Đang kiểm tra đăng nhập...</span>
+            </div>
         </div>
       ); 
   }
 
-  // Nếu đã đăng nhập -> Cho phép vào
+  // 2. Check xong: Có User & Token -> Cho vào
   if (isAuthenticated && user) {
     return <Outlet />
   }
 
-  // Nếu chưa đăng nhập -> Chuyển về login
-  // state={{ from: location }} là chìa khóa để quay lại
+  // 3. Check xong: Không có User/Token -> Đá về Login
+  console.log("🚫 Chưa đăng nhập, chuyển hướng về Auth");
   return <Navigate to="/auth" state={{ from: location }} replace />
 }
 

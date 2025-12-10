@@ -1,5 +1,5 @@
 import React from 'react'
-import { NavLink, useNavigate } from 'react-router' // Thêm useNavigate
+import { NavLink, useNavigate } from 'react-router' 
 import {
   LayoutDashboard,
   Film,
@@ -7,11 +7,11 @@ import {
   CalendarClock,
   Users,
   Ticket,
-  LogOut // Thêm icon LogOut
+  LogOut 
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useAuthStore } from '@/store/useAuthStore'
-// Danh sách các mục menu (Đã xóa Room vì logic nested route)
+
 const navItems = [
   { to: 'dashboard', icon: LayoutDashboard, label: 'Dashboard' },
   { to: 'movies', icon: Film, label: 'Quản lý phim' },

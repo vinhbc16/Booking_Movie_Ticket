@@ -2,10 +2,11 @@ import React, { useState, useEffect } from 'react'
 import { Ticket, User , LogOut, Settings } from 'lucide-react'
 import { useNavigate, Link } from 'react-router'
 import { Button } from '@/components/ui/button'
-import { useLocation } from 'react-router' // 1. Import hook 
+import { useLocation } from 'react-router'
 import { MovieSearch } from './MovieSearch'
 import { motion } from 'framer-motion'
 import { useAuthStore } from '@/store/useAuthStore'
+import { authService } from '@/services/authService'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -13,7 +14,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu" // Import Dropdown
+} from "@/components/ui/dropdown-menu" 
 
 const navItems = [
   { label: 'Phim', to: '/movies' },
@@ -28,11 +29,21 @@ export function CustomerHeader() {
   const logout = useAuthStore((state) => state.logout)
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated)
 
-  const handleLogout = () => {
-    logout()
+  const handleLogout = async () => {
+    try{
+    // 1. Gọi API để Backend xóa Session & Cookie
+      await authService.customerLogout(); 
+    } catch (error) {
+      console.error("Lỗi khi gọi API logout:", error);
+    } finally {
+      // 2. BẤT KỂ API CÓ CHẠY ĐƯỢC HAY KHÔNG, FRONTEND PHẢI TỰ XÓA MÌNH
+      logout(); // Hàm này của Zustand sẽ set user = null
+      
+      // 3. Xóa thủ công localStorage nếu Zustand persist bị kẹt (Biện pháp mạnh)
+      localStorage.removeItem('auth-storage');
     navigate('/') // Quay về trang login hoặc trang chủ sau khi logout
   }
-
+  }
   const location = useLocation()
   const isHomePage = location.pathname === '/'
   

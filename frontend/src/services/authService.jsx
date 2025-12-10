@@ -7,7 +7,7 @@ const customerLogout = () => api.post("/auth/logout")
 
 // Admin APIs
 const adminLogin = (credentials) => api.post("/admin/auth/login", credentials)
-const adminLogout = () => api.post("/admin/auth/logout") // Lưu ý backend phải có route này
+const adminLogout = () => api.post("/admin/auth/logout") 
 
 export const authService = {
   customerLogin,

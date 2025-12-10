@@ -3,16 +3,17 @@ import { useParams, useNavigate } from 'react-router';
 import { useSocket } from '@/hooks/useSocket';
 import { SeatMap } from '@/features/booking/components/SeatMap';
 import { useAuthStore } from '@/store/useAuthStore';
-import { showtimeService } from '@/services/showtimeService'; // Import service
+import { showtimeService } from '@/services/showtimeService'; 
 import { Loader2, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
+import { BookingSummary } from '@/features/booking/components/BookingSummary';
 
 export default function BookingPage() {
     const { showtimeId } = useParams();
     const navigate = useNavigate();
     const user = useAuthStore(state => state.user);
-    
+    const [totalPrice, setTotalPrice] = useState(0);
     // Kết nối socket
     const socket = useSocket(showtimeId);
 
@@ -72,29 +73,27 @@ export default function BookingPage() {
         };
     }, [socket, user]);
 
-    // 3. Xử lý chọn ghế
-    const handleSeatClick = (seatName) => {
-        if (!user) {
-            toast.error("Vui lòng đăng nhập lại");
-            return;
-        }
+    // Xử lý chọn ghế (Cập nhật giá tiền)
+    const handleSeatClick = (seatName, isVip, isCouple) => {
+        if (!user) { toast.error("Vui lòng đăng nhập lại"); return; }
+
+        let price = showtime.basePrice;
+        if (isVip) price *= 1.5; // Logic giá giống Backend
+        if (isCouple) price *= 2;
 
         if (mySeats.includes(seatName)) {
-            // Bỏ chọn
+            // Bỏ chọn -> Trừ tiền
             setMySeats(prev => prev.filter(s => s !== seatName));
+            setTotalPrice(prev => prev - price);
             socket.emit('release_seat', { showtimeId, seatName, userId: user.userID });
         } else {
-            // Chọn mới (Giới hạn tối đa 8 ghế chẳng hạn)
-            if (mySeats.length >= 8) {
-                toast.warning("Bạn chỉ được chọn tối đa 8 ghế");
-                return;
-            }
+            // Chọn mới -> Cộng tiền
+            if (mySeats.length >= 8) { toast.warning("Tối đa 8 ghế"); return; }
             setMySeats(prev => [...prev, seatName]);
+            setTotalPrice(prev => prev + price);
             socket.emit('hold_seat', { showtimeId, seatName, userId: user.userID });
         }
     };
-
-    // --- RENDER ---
 
     // 1. Màn hình Loading
     if (isLoading) {
@@ -120,61 +119,49 @@ export default function BookingPage() {
 
     // 3. Màn hình chính
     return (
-        <div className="min-h-screen bg-gray-50 pb-32"> {/* pb-32 để không bị footer che */}
-            {/* Header đơn giản */}
-            <div className="sticky top-0 z-10 bg-white shadow-sm px-4 py-3 flex items-center gap-4">
-                <Button variant="ghost" size="icon" onClick={() => navigate(-1)}>
-                    <ArrowLeft className="h-5 w-5" />
+        // Đổi background sang màu tối cho giống rạp phim
+        <div className="min-h-screen bg-[#0f0f1b] text-white pb-10">
+            
+            {/* Header tối giản */}
+            <div className="bg-[#1c1c2e] border-b border-white/5 py-4 px-6 mb-8 flex justify-between items-center">
+                <Button variant="ghost" onClick={() => navigate(-1)} className="text-white hover:bg-white/10">
+                    <ArrowLeft className="mr-2 h-5 w-5" /> Quay lại
                 </Button>
-                <div>
-                    <h1 className="text-lg font-bold text-gray-900">
-                        {showtime.movie.title}
-                    </h1>
-                    <p className="text-sm text-gray-500">
-                        {showtime.room.theater.name} - {showtime.room.name} - {new Date(showtime.startTime).toLocaleTimeString('vi-VN', {hour:'2-digit', minute:'2-digit'})}
-                    </p>
-                </div>
+                <h1 className="text-xl font-bold uppercase tracking-wider">Chọn ghế ngồi</h1>
+                <div className="w-24"></div> {/* Spacer */}
             </div>
 
-            {/* Sơ đồ ghế */}
-            <div className="container mx-auto mt-8 px-4 overflow-auto">
-                <SeatMap 
-                    rows={showtime.room.numberOfRows ?? 0}
-                    cols={showtime.room.seatsPerRow ?? 0 }
-                    // Lọc ra các ghế có status='booked' từ mảng seats của showtime
-                    bookedSeats={showtime.seats
-                        ? showtime.seats
-                        .filter(s => s.status === 'booked')
-                        .map(s => s.seatNumber) : []
-                    }
-                    heldSeats={heldSeats}
-                    selectedSeats={mySeats}
-                    onSeatClick={handleSeatClick}
-                />
-            </div>
-            
-            {/* Footer thanh toán (Bottom Bar) */}
-            {mySeats.length > 0 && (
-                <div className="fixed bottom-0 left-0 w-full bg-white border-t p-4 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] z-20 animate-in slide-in-from-bottom-5">
-                    <div className="container mx-auto flex justify-between items-center">
-                        <div>
-                            <p className="text-sm text-gray-500">Ghế đang chọn:</p>
-                            <p className="text-lg font-bold text-black">{mySeats.join(', ')}</p>
-                        </div>
-                        <div className="flex items-center gap-4">
-                            <div className="text-right">
-                                <p className="text-sm text-gray-500">Tổng cộng:</p>
-                                <p className="text-xl font-bold text-[#F5C518]">
-                                    {(mySeats.length * showtime.basePrice).toLocaleString()} đ
-                                </p>
-                            </div>
-                            <Button size="lg" className="bg-[#F5C518] text-black hover:bg-[#dcb015] font-bold px-8">
-                                THANH TOÁN
-                            </Button>
-                        </div>
+            <div className="container mx-auto px-4">
+                {/* LAYOUT 2 CỘT */}
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    
+                    {/* Cột Trái: Sơ đồ ghế (Chiếm 2 phần) */}
+                    <div className="lg:col-span-2 overflow-x-auto">
+                        <SeatMap 
+                            rows={showtime.room.numberOfRows}
+                            cols={showtime.room.seatsPerRow}
+                            bookedSeats={showtime.seats.filter(s => s.status === 'booked').map(s => s.seatNumber)}
+                            heldSeats={heldSeats}
+                            selectedSeats={mySeats}
+                            // Truyền thêm props mới
+                            vipRows={showtime.room.vipRows} 
+                            coupleRows={showtime.room.coupleRows}
+                            onSeatClick={handleSeatClick}
+                        />
                     </div>
+
+                    {/* Cột Phải: Thông tin & Thanh toán (Chiếm 1 phần) */}
+                    <div className="lg:col-span-1">
+                        <BookingSummary 
+                            showtime={showtime}
+                            selectedSeats={mySeats}
+                            totalPrice={totalPrice}
+                            onConfirm={() => console.log("Thanh toán!")} // Sẽ làm tiếp
+                        />
+                    </div>
+
                 </div>
-            )}
+            </div>
         </div>
     );
 }

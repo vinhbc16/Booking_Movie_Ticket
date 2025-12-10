@@ -1,21 +1,21 @@
 import React from 'react'
 import { Toaster } from 'sonner'
 import { BrowserRouter , Routes , Route , Navigate } from "react-router"
+import { Loader2 } from 'lucide-react'
 
-// 2. Features (Đường dẫn mới)
-// Auth
 import AuthPage from "@/features/auth/AuthPage"
 import AdminProtectedRoute from "@/features/auth/components/AdminProtectedRoute"
 import CustomerProtectedRoute from "@/features/auth/components/CustomerProtectedRoute"
+import { useInitializeAuth } from "@/hooks/useInitializeAuth" 
+import { useAuthStore } from "@/store/useAuthStore"
 
-// Customer Pages (Vẫn giữ ở pages vì chưa refactor feature home, hoặc bạn có thể chuyển nốt)
 import HomePage from "@/pages/HomePage" 
-import MoviesPage from "@/pages/MoviesPage" // 1. Import
-import MovieDetailPage from "@/pages/MovieDetailPage" // Import mới
-import ProfilePage from "@/pages/ProfilePage" // 1. Import
-import AdminLoginPage from "@/features/auth/AdminLoginPage" // Import trang mới
+import MoviesPage from "@/pages/MoviesPage" 
+import MovieDetailPage from "@/pages/MovieDetailPage" 
+import ProfilePage from "@/pages/ProfilePage" 
+import AdminLoginPage from "@/features/auth/AdminLoginPage" 
 import BookingPage from "@/pages/BookingPage"
-// Admin Features
+
 import MovieManagement from "@/features/admin/movies/MovieManagement"
 import TheaterManagement from "@/features/admin/theaters/TheaterManagement"
 import RoomManagement from "@/features/admin/rooms/RoomManagement"
@@ -27,6 +27,20 @@ import DashboardManagement from '@/features/admin/dashboard/DashboardManagement'
 
 
 function App() {
+  useInitializeAuth() 
+  // Lấy trạng thái checking để hiển thị màn hình chờ
+  const isCheckingAuth = useAuthStore((state) => state.isCheckingAuth)
+  // Màn hình chờ khi F5 (Tránh chớp nháy giao diện Login)
+  if (isCheckingAuth) {
+    return (
+      <div className="flex h-screen w-full items-center justify-center bg-white">
+        <div className="flex flex-col items-center gap-2">
+            <Loader2 className="h-10 w-10 animate-spin text-primary" />
+            <span className="text-sm text-gray-500 font-medium">Đang khởi động ứng dụng...</span>
+        </div>
+      </div>
+    )
+  }
   return (
     <>
       <Routes>
@@ -36,10 +50,10 @@ function App() {
           <Route path="/movies" element={<MoviesPage />} />
           <Route path="/movie/:id" element={<MovieDetailPage />} />
           <Route path="/profile" element={<ProfilePage />} />
+        </Route>
           <Route element={<CustomerProtectedRoute />}>
             <Route path="/booking/:showtimeId" element={<BookingPage />} />
           </Route>
-        </Route>
 
         {/* Customer Auth */}
         <Route path="/auth" element={<AuthPage />} />
@@ -55,9 +69,9 @@ function App() {
             {/* 1. Route Index: Tự động chuyển /admin -> /admin/dashboard */}
             <Route index element={<Navigate to="dashboard" replace />} />
             
-            {/* 2. Route Con: /admin/dashboard (ĐÂY LÀ DÒNG BẠN ĐANG THIẾU) */}
+            {/* 2. Route Con: /admin/dashboard */}
             <Route path="dashboard" element={<DashboardManagement />} />
-            {/* Nested Route cho Room (Đã fix logic trước đó) */}
+            {/* Nested Route cho Room */}
             <Route path="theaters" element={<TheaterManagement />} />
             <Route path="theaters/:theaterId/rooms" element={<RoomManagement />} />
             

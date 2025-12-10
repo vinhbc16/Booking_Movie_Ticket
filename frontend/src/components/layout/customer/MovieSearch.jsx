@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react'
-import { createPortal } from 'react-dom' // 1. IMPORT CÁI NÀY
+import { createPortal } from 'react-dom' 
 import { Search, Loader2, X, Film, User } from 'lucide-react'
 import { useNavigate } from 'react-router'
 import { Button } from "@/components/ui/button"
