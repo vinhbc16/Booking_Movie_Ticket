@@ -1,46 +1,41 @@
-const mongoose = require('mongoose');
+require("dotenv").config();
+const mongoose = require("mongoose");
 const { Schema, model } = mongoose;
 
-const BookingSchema = new Schema({
-    bookingCode: {
-        type: String,
-        required: true,
-        unique: true
+const BookingSchema = new Schema(
+  {
+    user: {
+      type: Schema.Types.ObjectId,
+      ref: "User",
     },
     showtime: {
-        type: Schema.Types.ObjectId,
-        ref: 'Showtime',
-        required: true
+      type: Schema.Types.ObjectId,
+      ref: "Showtime",
     },
-    user: {
-        type: Schema.Types.ObjectId,
-        ref: 'User',
-        required: true
-    },
-    seats: {
-        type: [String],
-        required: true
-    },
-    totalPrice: {
-        type: Number,
-        required: true
-    },
-    status: {
-        type: String,
-        enum: ['pending', 'completed', 'cancelled'],
-        default: 'pending'
+    seats: [{ seatName: String, price: Number }],
+    totalPrice: Number,
+    bookingCode: {
+      type: String,
+      unique: true,
     },
     paymentMethod: {
-        type: String,
-        enum: ['Momo', 'VNPay', 'CreditCard', 'AtCounter'],
-        required: true
+      type: String,
+      default: "VietQR",
     },
-    qrCode: {
-        type: String,
-        required: true
-    }
-}, { timestamps: true });
+    status: {
+      type: String,
+      enum: ["pending", "success", "failed", "expired"],
+      default: "pending",
+    },
+    expiresAt: Date,
+  },
+  { timestamps: true }
+);
 
-const Booking = model('Booking', BookingSchema);
+BookingSchema.index(
+    { expiresAt: 1 }, 
+    { expireAfterSeconds: 0, partialFilterExpression: { status: 'pending' } }
+);
 
+const Booking = model("Booking", BookingSchema);
 module.exports = Booking;

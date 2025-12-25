@@ -20,6 +20,10 @@ const errorHandlerMiddleware = require('./middlewares/error-handler')
 const cookieParser = require('cookie-parser')
 const authAdminRoute = require('./routes/admin/authAdminRoute')
 const authCustomerRoute = require('./routes/customer/authCustomerRoute')
+const bookingRoute = require('./routes/customer/bookingRoute')
+const customerUserRoute = require('./routes/customer/customerUserRoute')
+const adminUserRoute = require('./routes/admin/userRoute')
+
 
 
 const PORT = process.env.PORT || 3000
@@ -44,13 +48,17 @@ app.use('/api/v1/admin/auth', authAdminRoute)
 app.use('/api/v1/admin/movies', movieRoute)
 app.use('/api/v1/admin/theaters', theaterRoute)
 app.use('/api/v1/admin/showtimes', showtimeRoute)
+app.use('/api/v1/admin/users', adminUserRoute)
 
+app.use('/api/v1/customer/users', customerUserRoute)
 app.use('/api/v1/auth', authCustomerRoute)
 app.use('/api/v1/movies', customerMovieRoute)
 app.use('/api/v1/theaters', customerTheaterRoute)
 app.use('/api/v1/rooms', customerRoomRoute)
 app.use('/api/v1/showtimes', customerShowtimeRoute)
 app.use('/api/v1/featured-movies', getFeaturedMoviesRoute)
+app.use('/api/v1/bookings', bookingRoute)
+
 
 app.use(notFound);
 app.use(errorHandlerMiddleware);

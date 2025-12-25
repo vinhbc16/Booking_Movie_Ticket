@@ -38,7 +38,7 @@ const login = async (req, res) => {
     throw new UnauthenticatedError('Password is incorrect');
   }
   if (user.role !== 'customer') {
-      throw new UnauthenticatedError('Đây là cổng đăng nhập dành cho Khách hàng.');
+      throw new BadRequestError('Đây là cổng đăng nhập dành cho Khách hàng.');
   }
   const accessToken = await user.createJWT();
   await Session.deleteMany({ userID: user._id })
@@ -96,7 +96,7 @@ const refreshToken = async (req, res) => {
   if (!user) {
     throw new UnauthenticatedError('User not found');
   }
-  const accessToken = user.createJWT();
+  const accessToken = await user.createJWT();
   return res.status(200).json({ 
       accessToken,
       user: {

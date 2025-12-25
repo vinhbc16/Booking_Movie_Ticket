@@ -1,14 +1,7 @@
-// require('dotenv').config()
-// const mongoose = require('mongoose')
-// const connectDB = (url) => {
-//     return mongoose.connect(url)
-// }
-// module.exports = connectDB
-
 require('dotenv').config()
 const mongoose = require('mongoose')
 
-// 1. CÁC TÙY CHỌN KẾT NỐI (RẤT QUAN TRỌNG)
+// 1. CÁC TÙY CHỌN KẾT NỐI
 const connectionOptions = {
   // Gửi "ping" (heartbeat) đến DB mỗi 10 giây để giữ kết nối "sống"
   heartbeatFrequencyMS: 10000,

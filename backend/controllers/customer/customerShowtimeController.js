@@ -56,7 +56,6 @@ const getAllShowtimeCustomer = async (req,res) => {
                 theaterName: '$theaterInfo.name', 
                 theaterId: '$theaterInfo._id',
                 theaterAddress: '$theaterInfo.address',
-                // Tính số ghế trống
                 totalSeats: { $size: '$seats' },
                 bookedSeats: {
                     $size: {
@@ -66,8 +65,17 @@ const getAllShowtimeCustomer = async (req,res) => {
                             cond: { $eq: ['$$seat.status', 'booked'] }
                         }
                     }
-                }
+                },
+            availableSeats: {
+                    $size: {
+                        $filter: {
+                            input: '$seats',
+                            as: 'seat',
+                            cond: { $eq: ['$$seat.status', 'available'] } 
+                        }
+                    }
             }
+        }
         },
         { $sort: { 'startTime': 1 } }
     ])

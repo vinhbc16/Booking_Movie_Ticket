@@ -17,42 +17,118 @@ const io = new Server(server, {
     transports: ['websocket', 'polling']
 });
 
+const socketSeatMap = new Map();
+
 io.on('connection', (socket) => {
-        console.log('User connected:', socket.id);
-        socket.on('join_showtime', (showtimeId) => {
-            socket.join(showtimeId);
-            console.log(`User ${socket.id} joined room ${showtimeId}`);
-        });
-        socket.on('hold_seat', async ({ showtimeId, seatName, userId }) => {
-            const key = `seat:${showtimeId}:${seatName}`;
+    
+    socket.isPaymentProcessing = false;
+
+    socket.on('join_showtime', async ({ showtimeId, userId }) => {
+        socket.join(showtimeId);
+        
+        try {
+            const keys = await client.keys(`seat:${showtimeId}:*`);
+            
+            const heldSeats = []; 
+            const mySeats = [];   
+
+            for (const key of keys) {
+                const holderId = await client.get(key);
+                const seatName = key.split(':').pop();
+
+                if (userId && holderId === userId) {
+                    mySeats.push(seatName);
+                } else {
+                    heldSeats.push(seatName);
+                }
+            }
+
+            socket.emit('sync_seat_status', { heldSeats, mySeats });
+
+        } catch (err) {
+            console.error("Socket Error (Sync):", err);
+        }
+    });
+
+    socket.on('hold_seat', async ({ showtimeId, seatName, userId }) => {
+        const key = `seat:${showtimeId}:${seatName}`;
+        try {
             const holder = await client.get(key);
             if (holder && holder !== userId) {
                 socket.emit('error_message', 'Ghế này đã có người chọn!');
                 return;
             }
-            try {
-                const result = await client.set(key, userId, { EX: 300, NX: true });
-                if (result === 'OK') {
-                    io.to(showtimeId).emit('seat_locked', { seatName, userId });
-                    console.log(`Seat ${seatName} locked by ${userId}`);
-                } else {
-                    socket.emit('error_message', 'Chậm tay rồi! Ghế vừa bị người khác lấy.');
-                }
-            } catch (err) {
-                console.error(err);
+            
+            const result = await client.set(key, userId, { EX: 300, NX: true });
+            
+            if (result === 'OK') {
+                io.to(showtimeId).emit('seat_locked', { seatName, userId });
+                
+                if (!socketSeatMap.has(socket.id)) socketSeatMap.set(socket.id, []);
+                socketSeatMap.get(socket.id).push({ key, showtimeId, seatName });
+            } else {
+                socket.emit('error_message', 'Ghế vừa bị người khác chọn!');
             }
-        });
-        socket.on('release_seat', async ({ showtimeId, seatName, userId }) => {
-            const key = `seat:${showtimeId}:${seatName}`;
+        } catch (err) {
+            console.error("Socket Error (Hold):", err);
+        }
+    });
+
+    socket.on('release_seat', async ({ showtimeId, seatName, userId }) => {
+        const key = `seat:${showtimeId}:${seatName}`;
+        try {
             const holder = await client.get(key);
             if (holder === userId) {
                 await client.del(key);
                 io.to(showtimeId).emit('seat_released', { seatName });
+                
+                if (socketSeatMap.has(socket.id)) {
+                    const seats = socketSeatMap.get(socket.id).filter(s => s.seatName !== seatName);
+                    socketSeatMap.set(socket.id, seats);
+                }
             }
-        });
-        socket.on('disconnect', () => {
-            console.log('User disconnected:', socket.id);
-        });
+        } catch (err) {
+            console.error("Socket Error (Release):", err);
+        }
+    });
+
+    socket.on('start_payment', async ({ showtimeId, seats }) => {
+        console.log(`User ${socket.id} bắt đầu thanh toán. Gia hạn ghế...`);
+        
+        socket.isPaymentProcessing = true;
+
+
+        for (const seatName of seats) {
+            const key = `seat:${showtimeId}:${seatName}`;
+            try {
+                await client.expire(key, 900); 
+            } catch (err) {
+                console.error(`Lỗi gia hạn ghế ${seatName}:`, err);
+            }
+        }
+    });
+
+    socket.on('disconnect', async () => {
+        if (socket.isPaymentProcessing) {
+            console.log(`User ${socket.id} chuyển trang thanh toán (hoặc mất mạng tạm thời). GIỮ NGUYÊN GHẾ.`);
+            return; 
+        }
+
+        console.log(`User ${socket.id} thoát hẳn. Dọn dẹp ghế...`);
+        
+        if (socketSeatMap.has(socket.id)) {
+            const seatsToRelease = socketSeatMap.get(socket.id);
+            for (const seatInfo of seatsToRelease) {
+                try {
+                    await client.del(seatInfo.key);
+                    io.to(seatInfo.showtimeId).emit('seat_released', { seatName: seatInfo.seatName });
+                } catch (err) {
+                    console.error("Auto Release Error:", err);
+                }
+            }
+            socketSeatMap.delete(socket.id);
+        }
+    });
 })
 
 module.exports = { server , io , app }
