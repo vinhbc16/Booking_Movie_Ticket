@@ -8,6 +8,14 @@ import { Badge } from '@/components/ui/badge'
 import { showtimeService } from '@/services/showtimeService'
 import { cn } from '@/lib/utils'
 
+// 👇 1. IMPORT TOOLTIP TỪ SHADCN
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
+
 export function BookingSection({ movieId }) {
   const navigate = useNavigate()
   const [selectedDate, setSelectedDate] = useState(new Date())
@@ -15,8 +23,8 @@ export function BookingSection({ movieId }) {
   const [isLoading, setIsLoading] = useState(false)
   
   // State cho bộ lọc rạp và accordion
-  const [selectedTheaterFilter, setSelectedTheaterFilter] = useState('all') // 'all' hoặc theaterId
-  const [expandedTheaters, setExpandedTheaters] = useState({}) // { theaterId: boolean }
+  const [selectedTheaterFilter, setSelectedTheaterFilter] = useState('all')
+  const [expandedTheaters, setExpandedTheaters] = useState({}) 
 
   // 1. Tạo danh sách 14 ngày
   const dates = Array.from({ length: 14 }, (_, i) => addDays(new Date(), i))
@@ -34,7 +42,6 @@ export function BookingSection({ movieId }) {
         })
         setShowtimes(res.data.showtimesList || [])
         
-        // Reset filter và đóng hết accordion khi đổi ngày
         setSelectedTheaterFilter('all')
         setExpandedTheaters({})
       } catch (error) {
@@ -46,8 +53,7 @@ export function BookingSection({ movieId }) {
     fetchShowtimes()
   }, [selectedDate, movieId])
 
-  // 3. Logic Nhóm dữ liệu thông minh (Group by Theater ID)
-  // Cấu trúc: { theaterId: { info: {...}, showtimes: [...] } }
+  // 3. Logic Nhóm dữ liệu
   const groupedData = showtimes.reduce((acc, st) => {
     const tId = st.theaterId
     if (!acc[tId]) {
@@ -64,7 +70,6 @@ export function BookingSection({ movieId }) {
     return acc
   }, {})
 
-  // 4. Xử lý Toggle Accordion
   const toggleTheater = (theaterId) => {
     setExpandedTheaters(prev => ({
       ...prev,
@@ -72,18 +77,16 @@ export function BookingSection({ movieId }) {
     }))
   }
 
-  // 5. Lọc danh sách rạp hiển thị
   const displayedTheaters = selectedTheaterFilter === 'all' 
     ? Object.values(groupedData)
     : Object.values(groupedData).filter(g => g.info.id === selectedTheaterFilter)
 
-  // Format giờ: 19:30
   const formatTime = (dateStr) => format(new Date(dateStr), 'HH:mm')
 
   return (
     <div className="space-y-8">
       
-      {/* --- A. DATE SELECTOR (Thứ, Ngày/Tháng) --- */}
+      {/* --- A. DATE SELECTOR --- */}
       <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
         {dates.map((date) => {
           const isSelected = format(date, 'yyyy-MM-dd') === format(selectedDate, 'yyyy-MM-dd')
@@ -108,10 +111,9 @@ export function BookingSection({ movieId }) {
         })}
       </div>
 
-      {/* --- B. THEATER FILTER (Logo Rạp) --- */}
+      {/* --- B. THEATER FILTER --- */}
       {Object.keys(groupedData).length > 0 && (
         <div className="flex gap-3 overflow-x-auto pb-2 border-b border-dashed border-gray-200">
-          {/* Nút Tất cả */}
           <button
             onClick={() => setSelectedTheaterFilter('all')}
             className={cn(
@@ -125,13 +127,11 @@ export function BookingSection({ movieId }) {
             Tất cả rạp
           </button>
 
-          {/* Các rạp có lịch chiếu */}
           {Object.values(groupedData).map(group => (
             <button
               key={group.info.id}
               onClick={() => {
                 setSelectedTheaterFilter(group.info.id)
-                // Tự động mở accordion khi chọn filter
                 setExpandedTheaters({ [group.info.id]: true })
               }}
               className={cn(
@@ -147,7 +147,7 @@ export function BookingSection({ movieId }) {
         </div>
       )}
 
-      {/* --- C. THEATER LIST (Accordion) --- */}
+      {/* --- C. THEATER LIST --- */}
       <div className="space-y-4">
         {isLoading ? (
            <div className="text-center text-gray-500 py-10">Đang tải lịch chiếu...</div>
@@ -159,17 +159,16 @@ export function BookingSection({ movieId }) {
             return (
               <div key={group.info.id} className="rounded-xl border border-gray-200 bg-white overflow-hidden shadow-sm transition-all hover:shadow-md">
                 
-                {/* 1. Header Rạp (Click để mở) */}
+                {/* Header Rạp */}
                 <div 
                   className="flex items-center justify-between p-4 cursor-pointer bg-gray-50/50 hover:bg-gray-100/80 transition-colors"
                   onClick={() => toggleTheater(group.info.id)}
                 >
                   <div className="flex items-start gap-3">
-                     {/* Logo giả lập */}
-                     <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded bg-green-100 text-green-700 font-bold text-xs border border-green-200">
+                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded bg-green-100 text-green-700 font-bold text-xs border border-green-200">
                         {group.info.name.substring(0, 3).toUpperCase()}
-                     </div>
-                     <div>
+                      </div>
+                      <div>
                         <h3 className="text-base font-bold text-gray-900 flex items-center gap-2">
                           {group.info.name}
                           <span className="text-xs font-normal text-gray-400">({group.showtimes.length} suất)</span>
@@ -177,15 +176,14 @@ export function BookingSection({ movieId }) {
                         <p className="text-xs text-gray-500 mt-1 flex items-center gap-1">
                            <MapPin className="w-3 h-3" /> {group.info.address}
                         </p>
-                     </div>
+                      </div>
                   </div>
                   {isOpen ? <ChevronUp className="text-gray-400 w-5 h-5" /> : <ChevronDown className="text-gray-400 w-5 h-5" />}
                 </div>
 
-                {/* 2. Nội dung Suất chiếu (Dropdown) */}
+                {/* Nội dung Suất chiếu */}
                 {isOpen && (
                   <div className="p-4 border-t border-gray-100 animate-in slide-in-from-top-2 duration-200">
-                    {/* Hiển thị loại phòng (2D, 3D...) */}
                     {uniqueRoomTypes.map(type => (
                       <div key={type} className="mb-4 last:mb-0">
                         <div className="mb-3 flex items-center gap-2">
@@ -195,33 +193,55 @@ export function BookingSection({ movieId }) {
                            <span className="text-xs text-gray-400">Phụ đề tiếng Việt</span>
                         </div>
 
-                        {/* Grid Giờ chiếu */}
+                        {/* 👇 2. CẬP NHẬT LOGIC TOOLTIP & DISABLE Ở ĐÂY */}
                         <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 gap-3">
                           {group.showtimes
                             .filter(st => st.roomType === type)
                             .map((st) => (
-                              <div key={st._id} className="group relative">
-                                <Button
-                                  variant="outline"
-                                  className="w-full h-auto py-2 px-1 border-gray-300 text-gray-700 hover:border-blue-500 hover:text-blue-600 hover:bg-blue-50 flex flex-col gap-0.5"
-                                  onClick={() => navigate(`/booking/${st._id}`)}
-                                >
-                                  <span className="text-sm font-bold tracking-tight">
-                                    {formatTime(st.startTime)}
-                                  </span>
-                                  <span className="text-[10px] text-gray-400 font-normal">
-                                    ~{formatTime(st.endTime)}
-                                  </span>
-                                </Button>
-                                
-                                {/* Tooltip ghế trống */}
-                                <div className="absolute -top-8 left-1/2 -translate-x-1/2 opacity-0 transition-opacity group-hover:opacity-100 pointer-events-none z-10">
-                                   <div className="bg-black text-white text-[10px] px-2 py-1 rounded shadow-lg whitespace-nowrap">
-                                      {st.totalSeats - st.bookedSeats} ghế trống
-                                   </div>
-                                   <div className="w-2 h-2 bg-black rotate-45 absolute left-1/2 -translate-x-1/2 -bottom-1"></div>
-                                </div>
-                              </div>
+                              <TooltipProvider key={st._id}>
+                                <Tooltip>
+                                    <TooltipTrigger asChild>
+                                        <Button
+                                            variant="outline"
+                                            // Vô hiệu hóa nếu hết ghế
+                                            disabled={st.availableSeats === 0}
+                                            onClick={() => navigate(`/booking/${st._id}`)}
+                                            className={cn(
+                                                "w-full h-auto py-2 px-1 border-gray-300 text-gray-700 hover:border-blue-500 hover:text-blue-600 hover:bg-blue-50 flex flex-col gap-0.5",
+                                                // Style cho trạng thái hết vé
+                                                st.availableSeats === 0 && "opacity-50 cursor-not-allowed bg-gray-100 hover:bg-gray-100 hover:border-gray-300 hover:text-gray-400"
+                                            )}
+                                        >
+                                            <span className="text-sm font-bold tracking-tight">
+                                                {formatTime(st.startTime)}
+                                            </span>
+                                            <span className="text-[10px] text-gray-400 font-normal">
+                                                ~{formatTime(st.endTime)}
+                                            </span>
+                                        </Button>
+                                    </TooltipTrigger>
+
+                                    {/* Tooltip Content */}
+                                    <TooltipContent className="bg-slate-800 text-white border-slate-700">
+                                        <div className="text-center">
+                                            <p className="font-bold text-sm mb-1">{st.room}</p>
+                                            <div className="text-xs text-gray-300">
+                                                Ghế trống: <span className={cn(
+                                                    "font-bold", 
+                                                    st.availableSeats > 10 ? "text-green-400" : "text-red-400"
+                                                )}>
+                                                    {st.availableSeats}
+                                                </span> 
+                                                <span className="mx-1">/</span> 
+                                                {st.totalSeats}
+                                            </div>
+                                            {st.availableSeats === 0 && (
+                                                <p className="text-[10px] text-red-500 mt-1 uppercase font-bold">Đã hết vé</p>
+                                            )}
+                                        </div>
+                                    </TooltipContent>
+                                </Tooltip>
+                              </TooltipProvider>
                           ))}
                         </div>
                       </div>

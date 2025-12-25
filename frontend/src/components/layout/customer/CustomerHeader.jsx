@@ -127,11 +127,10 @@ export function CustomerHeader() {
                 <DropdownMenuItem onClick={() => navigate('/profile')}>
                   <Settings className="mr-2 h-4 w-4" /> Hồ sơ
                 </DropdownMenuItem>
-                {/* {user.role === 'admin' && (
-                   <DropdownMenuItem onClick={() => navigate('/admin')}>
-                     <Ticket className="mr-2 h-4 w-4" /> Trang quản trị
-                   </DropdownMenuItem>
-                )} */}
+                <DropdownMenuItem onClick={() => navigate('/my-tickets')}>
+                <Ticket className="mr-2 h-4 w-4" />
+                <span>Vé của tôi</span>
+              </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={handleLogout} className="text-destructive focus:text-destructive">
                   <LogOut className="mr-2 h-4 w-4" /> Đăng xuất

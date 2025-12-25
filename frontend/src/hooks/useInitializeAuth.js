@@ -7,7 +7,6 @@ export function useInitializeAuth() {
   const logout = useAuthStore((state) => state.logout)
   const finishChecking = useAuthStore((state) => state.finishChecking)
   
-  // Dùng ref để tránh React 18 chạy 2 lần ở StrictMode gây nhiễu log
   const effectRan = useRef(false)
 
   useEffect(() => {
@@ -15,36 +14,25 @@ export function useInitializeAuth() {
     effectRan.current = true;
 
     const checkAuth = async () => {
-      console.log("🔄 [Auth Debug] Bắt đầu khôi phục phiên đăng nhập...");
-      
       try {
-        // Log xem URL gọi là gì
-        console.log("📡 [Auth Debug] Gọi API: POST /auth/refresh-token");
-        
+        // Gọi API refresh token âm thầm
         const res = await api.post('/auth/refresh-token')
-        
-        console.log("✅ [Auth Debug] Refresh thành công!", res.data);
-        
         const { user, accessToken } = res.data
-        setAuth(user, accessToken)
-        console.log("💾 [Auth Debug] Đã lưu Token mới vào Zustand Store");
-
-      } catch (error) {
-        console.error("❌ [Auth Debug] Lỗi khi refresh token:", error);
         
-        if (error.response) {
-            // Lỗi từ backend trả về (401, 403...)
-            console.log("⚠️ [Auth Debug] Status:", error.response.status);
-            console.log("⚠️ [Auth Debug] Data:", error.response.data);
+        // Kiểm tra an toàn lần cuối
+        if (typeof accessToken === 'string') {
+            setAuth(user, accessToken)
         } else {
-            // Lỗi mạng hoặc config
-            console.log("⚠️ [Auth Debug] Network/Config Error");
+            // Chỉ log nếu dữ liệu sai định dạng nghiêm trọng
+            console.error("Token format error");
+            logout();
         }
 
-        // Nếu lỗi, xóa sạch thông tin cũ để tránh xung đột
+      } catch (error) {
+        // Không cần log lỗi 401/403 ra console quá nhiều vì đây là hành vi bình thường khi chưa login
+        // Chỉ logout để reset state
         logout() 
       } finally {
-        console.log("🏁 [Auth Debug] Kết thúc kiểm tra Auth -> Tắt màn hình loading");
         finishChecking()
       }
     }

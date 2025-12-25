@@ -1,63 +1,73 @@
 import axios from "axios"
-import { useAuthStore } from "@/store/useAuthStore"
+import { useAuthStore } from "@/store/useAuthStore" // Import Store
 
 const BASE_URL = "http://localhost:3000/api/v1"
 
 const api = axios.create({
   baseURL: BASE_URL,
+  withCredentials: true, // Để gửi kèm cookie refreshToken
   headers: {
     "Content-Type": "application/json",
   },
-  withCredentials: true, // BẮT BUỘC: Để gửi Cookie RefreshToken đi
 })
 
-// 1. Request Interceptor: Gắn Access Token từ RAM vào Header
+// 🚀 1. REQUEST INTERCEPTOR (Thêm đoạn này để fix lỗi F5)
+// Trước khi gửi request đi, luôn lấy token mới nhất từ Store
 api.interceptors.request.use(
   (config) => {
-    const token = useAuthStore.getState().accessToken
+    const token = useAuthStore.getState().accessToken;
+
+    // --- ĐOẠN CODE FIX LỖI ---
     if (token) {
-      config.headers["Authorization"] = `Bearer ${token}`
+        // 1. Nếu token là String chuẩn -> Dùng luôn
+        if (typeof token === 'string') {
+            config.headers["Authorization"] = `Bearer ${token}`;
+        } 
+        // 2. Nếu token là Object (lỗi bạn đang gặp {}) -> Cố gắng lấy string bên trong
+        else if (typeof token === 'object') {
+            console.warn("⚠️ Token bị lưu sai định dạng Object:", token);
+            
+            // Nếu trong object có key accessToken thì lấy nó
+            if (token.accessToken && typeof token.accessToken === 'string') {
+                config.headers["Authorization"] = `Bearer ${token.accessToken}`;
+            } 
+            // Nếu là object rỗng {} thì KHÔNG gửi header (coi như chưa login)
+        }
     }
-    return config
+    // -------------------------
+
+    return config;
   },
   (error) => Promise.reject(error)
-)
+);
 
-// 2. Response Interceptor: Tự động Refresh khi lỗi 401
+// 2. RESPONSE INTERCEPTOR (Giữ nguyên logic cũ của bạn)
 api.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config
-
-    // Nếu lỗi 401 và chưa từng thử lại
-    if (error.response?.status === 401 && !originalRequest._retry && !originalRequest.url.includes('/auth/refresh-token')) {
+    // Logic refresh token cũ của bạn...
+    if (
+        error.response?.status === 401 && 
+        !originalRequest._retry && 
+        !originalRequest.url.includes('/auth/refresh-token')
+    ) {
       originalRequest._retry = true 
-
       try {
-        // Gọi API Refresh Token (Cookie refreshToken sẽ tự động gửi kèm)
-        // Lưu ý: Gọi vào route chung của customer vì chúng ta đã gộp logic refresh
-        const res = await axios.post(`${BASE_URL}/auth/refresh-token`, {}, {
-            withCredentials: true 
-        })
-
+        const res = await axios.post(`${BASE_URL}/auth/refresh-token`, {}, { withCredentials: true })
         const { accessToken, user } = res.data 
-
-        // 1. Cập nhật Token mới vào Store
+        
+        // Cập nhật store
         useAuthStore.getState().setAuth(user, accessToken)
-
-        // 2. Gắn Token mới vào header request cũ
+        
+        // Gắn token mới vào request đang bị lỗi và gửi lại
         originalRequest.headers["Authorization"] = `Bearer ${accessToken}`
-
-        // 3. Thực hiện lại request cũ
         return api(originalRequest)
-
       } catch (refreshError) {
-        // Refresh thất bại (Cookie hết hạn/không hợp lệ) -> Logout
         useAuthStore.getState().logout()
         return Promise.reject(refreshError)
       }
     }
-
     return Promise.reject(error)
   }
 )

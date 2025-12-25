@@ -1,30 +1,28 @@
 import { useEffect, useRef } from 'react';
 import { io } from 'socket.io-client';
 
-const SOCKET_URL = 'http://localhost:3000'; // URL Backend 
+const SOCKET_URL = 'http://localhost:3000';
 
-export const useSocket = (showtimeId) => {
+export const useSocket = () => { 
   const socketRef = useRef(null);
 
   useEffect(() => {
-    // 1. Kết nối
-    socketRef.current = io(SOCKET_URL, {
-        withCredentials: true, // Nếu cần cookie
-        transports: ['websocket'] // Ưu tiên websocket cho nhanh
-    });
-
-    // 2. Join Room (Suất chiếu)
-    if (showtimeId) {
-        socketRef.current.emit('join_showtime', showtimeId);
+    // Chỉ khởi tạo 1 lần
+    if (!socketRef.current) {
+        socketRef.current = io(SOCKET_URL, {
+            withCredentials: true,
+            transports: ['websocket', 'polling'],
+            autoConnect: false // Tắt tự kết nối để ta kiểm soát ở BookingPage
+        });
     }
 
-    // 3. Cleanup khi rời trang
     return () => {
         if (socketRef.current) {
             socketRef.current.disconnect();
+            socketRef.current = null; // Reset ref khi unmount
         }
     };
-  }, [showtimeId]);
+  }, []);
 
   return socketRef.current;
 };
