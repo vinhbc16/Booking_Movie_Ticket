@@ -210,7 +210,7 @@ function EditUserForm({ user, onSuccess }) {
           phone: u.phone || "",
           role: u.role || "customer",
           sex: u.sex || "Nam",
-          birthDate: formatDateForInput(u.birthDate),
+          birthDate: formatDateForInput(u.dateOfBirth),
         });
       } catch (error) {
         toast.error("Không thể tải thông tin chi tiết user");
@@ -223,12 +223,10 @@ function EditUserForm({ user, onSuccess }) {
         e.preventDefault();
         setIsLoading(true);
         try {
-            // FIX LỖI 400 BAD REQUEST Ở ĐÂY
-            // Nếu birthDate là chuỗi rỗng "", gửi null hoặc undefined để Mongoose không lỗi
             const dataToSend = {
                 name: formData.name,
                 phone: formData.phone,
-                gender: formData.gender,
+                sex: formData.sex,
                 birthDate: formData.birthDate === '' ? null : formData.birthDate 
             };
             

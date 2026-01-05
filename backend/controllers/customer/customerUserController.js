@@ -7,7 +7,7 @@ const { BadRequestError, NotFoundError } = require('../../errors/custom-error');
 const getUser = async (req, res) => {
     const { params: { id : userID } } = req;
     if( !userID || userID === 'undefined' ){
-        throw new BaddRequestError('UserID is required');
+        throw new BadRequestError('UserID is required');
     }
     const user = await User.findById(userID);
     res.status(200).json({ user });

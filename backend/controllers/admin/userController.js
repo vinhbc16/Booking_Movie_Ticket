@@ -51,15 +51,15 @@ const getUserDetail = async (req, res) => {
 
 const updateUserByAdmin = async (req, res) => {
     const { id } = req.params;
-    const { name, phone, role, birthDate , sex } = req.body;
+    const { name, phone, birthDate , sex } = req.body;
 
-    if (!name || !role) {
-        throw new BadRequestError('Tên và Vai trò không được để trống');
+    if (!name) {
+        throw new BadRequestError('Tên không được để trống');
     }
 
     const user = await User.findByIdAndUpdate(
         id,
-        { name, phone, role, birthDate , sex },
+        { name, phone, dateOfBirth: birthDate , sex },
         { new: true, runValidators: true }
     ).select('-password');
 

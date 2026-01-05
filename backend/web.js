@@ -23,6 +23,7 @@ const authCustomerRoute = require('./routes/customer/authCustomerRoute')
 const bookingRoute = require('./routes/customer/bookingRoute')
 const customerUserRoute = require('./routes/customer/customerUserRoute')
 const adminUserRoute = require('./routes/admin/userRoute')
+const dashboardRoute = require('./routes/admin/dashboardRoute')
 
 
 
@@ -45,6 +46,7 @@ app.use(cookieParser())
 
 
 app.use('/api/v1/admin/auth', authAdminRoute)
+app.use('/api/v1/admin/dashboard', dashboardRoute)
 app.use('/api/v1/admin/movies', movieRoute)
 app.use('/api/v1/admin/theaters', theaterRoute)
 app.use('/api/v1/admin/showtimes', showtimeRoute)

@@ -24,7 +24,7 @@ const formatDateForInput = (isoDateString) => {
   return date.toISOString().split("T")[0];
 };
 export default function ProfilePage() {
-  const { user, checkAuth } = useAuthStore();
+  const user = useAuthStore((state) => state.user);
 
   return (
     <div className="min-h-screen bg-white text-gray-900 pb-20">
@@ -60,7 +60,7 @@ export default function ProfilePage() {
           <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
             <User className="text-red-600" /> Thông tin cá nhân
           </h2>
-          <PersonalInfoForm user={user} refreshUser={checkAuth} />
+          <PersonalInfoForm user={user} />
         </section>
 
         <hr className="border-gray-100" />
@@ -78,7 +78,7 @@ export default function ProfilePage() {
 }
 
 // --- SUB-COMPONENT: FORM (Light Theme + Edit Mode + Gender) ---
-const PersonalInfoForm = ({ user: initialUser, refreshUser }) => {
+const PersonalInfoForm = ({ user: initialUser }) => {
   const [isEditing, setIsEditing] = useState(false); // State quản lý chế độ sửa
   const [formData, setFormData] = useState({
     name: "",
@@ -103,7 +103,7 @@ const PersonalInfoForm = ({ user: initialUser, refreshUser }) => {
           email: userData.email || "",
           phone: userData.phone || "",
           sex: userData.sex || "Nam", // Load giới tính
-          birthDate: formatDateForInput(userData.birthDate),
+          birthDate: formatDateForInput(userData.dateOfBirth),
         });
       } catch (error) {
         console.error("Lỗi tải thông tin user:", error);
@@ -121,18 +121,31 @@ const PersonalInfoForm = ({ user: initialUser, refreshUser }) => {
         e.preventDefault();
         setIsLoading(true);
         try {
-            // 1. Gọi API Update
-            await userService.updateProfile(initialUser.userID, formData);
+            // Gọi API Update - sử dụng dateOfBirth cho DB
+            const dataToUpdate = {
+                name: formData.name,
+                phone: formData.phone,
+                sex: formData.sex,
+                dateOfBirth: formData.birthDate === '' ? null : formData.birthDate
+            };
+            await userService.updateProfile(initialUser.userID, dataToUpdate);
             
-            // 2. Báo thành công NGAY LẬP TỨC
+            // Báo thành công
             toast.success("Cập nhật thông tin thành công!");
             setIsEditing(false);
 
-            // 3. Refresh user ngầm (Không await hoặc try catch riêng để tránh trigger lỗi UI nếu nó fail nhẹ)
-            refreshUser().catch(err => console.log("Refresh user silent fail:", err));
+            // Reload lại dữ liệu mới sau khi update
+            const res = await userService.getProfile(initialUser.userID);
+            const userData = res.data.user;
+            setFormData({
+              name: userData.name || "",
+              email: userData.email || "",
+              phone: userData.phone || "",
+              sex: userData.sex || "Nam",
+              birthDate: formatDateForInput(userData.dateOfBirth),
+            });
 
         } catch (error) {
-            // Chỉ báo lỗi khi API updateProfile thực sự chết
             console.error(error);
             toast.error(error.response?.data?.msg || "Lỗi cập nhật");
         } finally {
