@@ -14,9 +14,9 @@ export default function PaymentSuccessPage() {
                     <CheckCircle className="w-20 h-20 text-green-500 animate-bounce" />
                 </div>
                 
-                <h1 className="text-3xl font-bold text-white mb-2">Thanh toán thành công!</h1>
+                <h1 className="text-3xl font-bold text-white mb-2">Payment Successful!</h1>
                 <p className="text-gray-400 mb-8">
-                    Vé của bạn đã được xuất. Bạn có thể xem lại trong phần Vé của tôi hoặc Email.
+                    Your ticket has been issued. You can view it in My Tickets or Email.
                 </p>
 
                 <div className="space-y-3">
@@ -24,14 +24,14 @@ export default function PaymentSuccessPage() {
                         className="w-full bg-green-600 hover:bg-green-700 h-12 text-lg font-bold"
                         onClick={() => navigate('/my-tickets')}
                     >
-                        <Ticket className="mr-2 w-5 h-5" /> Xem vé của tôi
+                        <Ticket className="mr-2 w-5 h-5" /> View My Tickets
                     </Button>
                     <Button 
                         variant="ghost" 
                         className="w-full text-gray-400 hover:text-white"
                         onClick={() => navigate('/')}
                     >
-                        Về trang chủ
+                        Back to Home
                     </Button>
                 </div>
             </div>

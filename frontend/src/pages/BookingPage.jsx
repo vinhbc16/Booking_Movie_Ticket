@@ -38,8 +38,8 @@ export default function BookingPage() {
           setShowtime(res.data.showtime);
         }
       } catch (error) {
-        console.error("Lỗi tải suất chiếu:", error);
-        toast.error("Không thể tải thông tin suất chiếu");
+        console.error("Error loading showtime:", error);
+        toast.error("Unable to load showtime information");
       } finally {
         setIsLoading(false);
       }
@@ -139,7 +139,7 @@ export default function BookingPage() {
   // 4. HANDLER: XỬ LÝ CLICK GHẾ
   const handleSeatClick = (seatName) => {
     if (!user) {
-      toast.error("Vui lòng đăng nhập để đặt vé");
+      toast.error("Please login to book tickets");
       return;
     }
 
@@ -156,7 +156,7 @@ export default function BookingPage() {
     // Trường hợp 2: Chọn ghế mới
     else {
       if (mySeats.length >= 8) {
-        toast.warning("Bạn chỉ được chọn tối đa 8 ghế");
+        toast.warning("You can only select up to 8 seats");
         return;
       }
       setMySeats((prev) => [...prev, seatName]);
@@ -174,7 +174,7 @@ export default function BookingPage() {
   // 5. HANDLER: XÁC NHẬN THANH TOÁN
   const handleConfirmBooking = () => {
     if (!mySeats || mySeats.length === 0) {
-      toast.error("Vui lòng chọn ít nhất 1 ghế!");
+      toast.error("Please select at least 1 seat!");
       return;
     }
 
@@ -202,7 +202,7 @@ export default function BookingPage() {
       <div className="flex h-screen items-center justify-center bg-[#0f0f1b]">
         <Loader2 className="h-10 w-10 animate-spin text-purple-500" />
         <span className="ml-3 text-lg font-medium text-gray-400">
-          Đang tải sơ đồ ghế...
+          Loading seat map...
         </span>
       </div>
     );
@@ -212,8 +212,8 @@ export default function BookingPage() {
   if (!showtime) {
     return (
       <div className="flex h-screen flex-col items-center justify-center gap-4 bg-[#0f0f1b] text-white">
-        <p className="text-xl text-gray-500">Không tìm thấy suất chiếu này.</p>
-        <Button onClick={() => navigate("/")}>Về trang chủ</Button>
+        <p className="text-xl text-gray-500">Showtime not found.</p>
+        <Button onClick={() => navigate("/")}>Back to Home</Button>
       </div>
     );
   }
@@ -228,10 +228,10 @@ export default function BookingPage() {
           onClick={() => navigate(-1)}
           className="text-gray-300 hover:text-white hover:bg-white/10"
         >
-          <ArrowLeft className="mr-2 h-5 w-5" /> Quay lại
+          <ArrowLeft className="mr-2 h-5 w-5" /> Back
         </Button>
         <h1 className="text-xl font-bold uppercase tracking-wider hidden sm:block">
-          Chọn ghế ngồi
+          Select Your Seats
         </h1>
         <div className="w-24"></div> {/* Spacer để cân đối header */}
       </div>
@@ -239,28 +239,28 @@ export default function BookingPage() {
       <div className="container mx-auto px-4">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           
-          {/* CỘT TRÁI: SƠ ĐỒ GHẾ */}
+          {/* LEFT COLUMN: SEAT MAP */}
           <div className="lg:col-span-2 overflow-x-auto custom-scrollbar pb-4">
             <SeatMap
               rows={showtime.room.numberOfRows}
               cols={showtime.room.seatsPerRow}
-              // Ghế đã bán (DB)
+              // Booked seats (from DB)
               bookedSeats={showtime.seats
                 .filter((s) => s.status === "booked")
                 .map((s) => s.seatNumber)}
-              // Ghế người khác đang giữ (Redis)
+              // Seats held by others (from Redis)
               heldSeats={heldSeats}
-              // Ghế mình đang chọn
+              // Seats I'm selecting
               selectedSeats={mySeats}
-              // Cấu hình phòng
+              // Room configuration
               vipRows={showtime.room.vipRows}
               coupleRows={showtime.room.coupleRows}
-              // Sự kiện click
+              // Click event
               onSeatClick={handleSeatClick}
             />
           </div>
 
-          {/* CỘT PHẢI: TỔNG KẾT & THANH TOÁN */}
+          {/* RIGHT COLUMN: SUMMARY & PAYMENT */}
           <div className="lg:col-span-1">
             <div className="sticky top-24">
                 <BookingSummary

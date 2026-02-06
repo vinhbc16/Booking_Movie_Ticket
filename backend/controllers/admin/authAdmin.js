@@ -21,7 +21,7 @@ const login = async (req, res) => {
     throw new UnauthenticatedError('Password is incorrect');
   }
   if (user.role !== 'admin') {
-      throw new UnauthenticatedError('Bạn không có quyền truy cập vào trang Quản trị.');
+      throw new UnauthenticatedError('You do not have permission to access the Admin page.');
   }
   const accessToken = await user.createJWT();
   await Session.deleteMany({ userID: user._id }); 
@@ -33,9 +33,9 @@ const login = async (req, res) => {
   const isProduction = process.env.NODE_ENV === 'production';
   res.cookie('refreshToken', refreshToken, {
         httpOnly: true,
-        // Nếu là production thì true (HTTPS), localhost thì false (HTTP)
+        // Production: true (HTTPS), Localhost: false (HTTP)
         secure: isProduction, 
-        // Localhost dùng 'Lax' để ổn định, Production dùng 'None' (nếu cross-site) hoặc 'Lax'
+        // Localhost uses 'Lax' for stability, Production uses 'None' (if cross-site) or 'Lax'
         sameSite: isProduction ? 'None' : 'Lax',
         maxAge: parseInt(process.env.REFRESH_TOKEN_LIFETIME) * 24 * 60 * 60 * 1000,
   });

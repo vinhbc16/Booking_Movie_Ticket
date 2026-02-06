@@ -31,16 +31,16 @@ import AdminUserPage from "@/features/admin/users/AdminUserPage";
 
 function App() {
   useInitializeAuth();
-  // Lấy trạng thái checking để hiển thị màn hình chờ
+  // Get checking state to display loading screen
   const isCheckingAuth = useAuthStore((state) => state.isCheckingAuth);
-  // Màn hình chờ khi F5 (Tránh chớp nháy giao diện Login)
+  // Loading screen on F5 (Prevent UI flashing)
   if (isCheckingAuth) {
     return (
       <div className="flex h-screen w-full items-center justify-center bg-white">
         <div className="flex flex-col items-center gap-2">
           <Loader2 className="h-10 w-10 animate-spin text-primary" />
           <span className="text-sm text-gray-500 font-medium">
-            Đang khởi động ứng dụng...
+            Loading application...
           </span>
         </div>
       </div>
@@ -58,31 +58,30 @@ function App() {
         </Route>
         <Route element={<CustomerProtectedRoute />}>
           <Route path="/booking/:showtimeId" element={<BookingPage />} />
-          <Route path="/payment" element={<PaymentPage />} /> {/* Route Mới */}
+          <Route path="/payment" element={<PaymentPage />} />
           <Route
             path="/payment/success"
             element={<PaymentSuccessPage />}
           />{" "}
           <Route path="/my-tickets" element={<MyTicketsPage />} />
-          {/* Route Mới */}
         </Route>
 
         {/* Customer Auth */}
         <Route path="/auth" element={<AuthPage />} />
 
-        {/* 🚀 ADMIN AUTH (Route riêng) */}
+        {/* Admin Auth Route */}
         <Route path="/admin/login" element={<AdminLoginPage />} />
 
         {/* Admin Routes */}
         <Route element={<AdminProtectedRoute />}>
           <Route path="/admin" element={<AdminLayout />}>
             <Route path="movies" element={<MovieManagement />} />
-            {/* 1. Route Index: Tự động chuyển /admin -> /admin/dashboard */}
+            {/* Index Route: Auto redirect /admin -> /admin/dashboard */}
             <Route index element={<Navigate to="dashboard" replace />} />
 
-            {/* 2. Route Con: /admin/dashboard */}
+            {/* Child Route: /admin/dashboard */}
             <Route path="dashboard" element={<DashboardManagement />} />
-            {/* Nested Route cho Room */}
+            {/* Nested Route for Room */}
             <Route path="theaters" element={<TheaterManagement />} />
             <Route
               path="theaters/:theaterId/rooms"

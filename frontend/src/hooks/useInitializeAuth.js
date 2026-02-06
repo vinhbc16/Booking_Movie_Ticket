@@ -15,22 +15,22 @@ export function useInitializeAuth() {
 
     const checkAuth = async () => {
       try {
-        // Gọi API refresh token âm thầm
+        // Call refresh token API silently
         const res = await api.post('/auth/refresh-token')
         const { user, accessToken } = res.data
         
-        // Kiểm tra an toàn lần cuối
+        // Final safety check
         if (typeof accessToken === 'string') {
             setAuth(user, accessToken)
         } else {
-            // Chỉ log nếu dữ liệu sai định dạng nghiêm trọng
+            // Only log if data format is seriously wrong
             console.error("Token format error");
             logout();
         }
 
       } catch (error) {
-        // Không cần log lỗi 401/403 ra console quá nhiều vì đây là hành vi bình thường khi chưa login
-        // Chỉ logout để reset state
+        // No need to log 401/403 errors as this is normal behavior when not logged in
+        // Just logout to reset state
         logout() 
       } finally {
         finishChecking()

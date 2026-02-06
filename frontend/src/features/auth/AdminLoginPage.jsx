@@ -15,7 +15,7 @@ import { useAuthStore } from "@/store/useAuthStore"
 
 const formSchema = z.object({
   email: z.string().email(),
-  password: z.string().min(1, "Vui lòng nhập mật khẩu"),
+  password: z.string().min(1, "Please enter password"),
 })
 
 export default function AdminLoginPage() {
@@ -33,15 +33,15 @@ export default function AdminLoginPage() {
       const { accessToken, user } = res.data
       
       if (user.role !== 'admin') {
-        toast.error("Tài khoản không có quyền truy cập")
+        toast.error("Account does not have access permission")
         return
       }
 
       setAuth(user, accessToken)
-      toast.success("Đăng nhập Admin thành công!")
+      toast.success("Admin login successful!")
       navigate('/admin/dashboard')
     } catch (error) {
-      toast.error(error.response?.data?.msg || "Đăng nhập thất bại")
+      toast.error(error.response?.data?.msg || "Login failed")
     }
   }
 
@@ -53,7 +53,7 @@ export default function AdminLoginPage() {
             <ShieldCheck className="h-6 w-6 text-primary" />
           </div>
           <CardTitle className="text-2xl">Admin Portal</CardTitle>
-          <CardDescription>Hệ thống quản lý rạp chiếu phim</CardDescription>
+          <CardDescription>Cinema Management System</CardDescription>
         </CardHeader>
         <CardContent>
           <Form {...form}>
@@ -74,14 +74,14 @@ export default function AdminLoginPage() {
                 name="password"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Mật khẩu</FormLabel>
+                    <FormLabel>Password</FormLabel>
                     <FormControl><Input type="password" {...field} /></FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
               <Button type="submit" className="w-full" disabled={form.formState.isSubmitting}>
-                Đăng nhập
+                Login
               </Button>
             </form>
           </Form>

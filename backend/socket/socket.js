@@ -55,7 +55,7 @@ io.on('connection', (socket) => {
         try {
             const holder = await client.get(key);
             if (holder && holder !== userId) {
-                socket.emit('error_message', 'Ghế này đã có người chọn!');
+                socket.emit('error_message', 'This seat has already been selected by someone else!');
                 return;
             }
             
@@ -67,7 +67,7 @@ io.on('connection', (socket) => {
                 if (!socketSeatMap.has(socket.id)) socketSeatMap.set(socket.id, []);
                 socketSeatMap.get(socket.id).push({ key, showtimeId, seatName });
             } else {
-                socket.emit('error_message', 'Ghế vừa bị người khác chọn!');
+                socket.emit('error_message', 'This seat was just selected by someone else!');
             }
         } catch (err) {
             console.error("Socket Error (Hold):", err);
@@ -93,7 +93,7 @@ io.on('connection', (socket) => {
     });
 
     socket.on('start_payment', async ({ showtimeId, seats }) => {
-        console.log(`User ${socket.id} bắt đầu thanh toán. Gia hạn ghế...`);
+        console.log(`User ${socket.id} started payment. Extending seat hold...`);
         
         socket.isPaymentProcessing = true;
 
@@ -103,18 +103,18 @@ io.on('connection', (socket) => {
             try {
                 await client.expire(key, 900); 
             } catch (err) {
-                console.error(`Lỗi gia hạn ghế ${seatName}:`, err);
+                console.error(`Error extending seat ${seatName}:`, err);
             }
         }
     });
 
     socket.on('disconnect', async () => {
         if (socket.isPaymentProcessing) {
-            console.log(`User ${socket.id} chuyển trang thanh toán (hoặc mất mạng tạm thời). GIỮ NGUYÊN GHẾ.`);
+            console.log(`User ${socket.id} navigated to payment page (or temporary network loss). KEEPING SEATS.`);
             return; 
         }
 
-        console.log(`User ${socket.id} thoát hẳn. Dọn dẹp ghế...`);
+        console.log(`User ${socket.id} disconnected. Cleaning up seats...`);
         
         if (socketSeatMap.has(socket.id)) {
             const seatsToRelease = socketSeatMap.get(socket.id);

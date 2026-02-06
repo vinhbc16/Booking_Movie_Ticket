@@ -38,7 +38,7 @@ const login = async (req, res) => {
     throw new UnauthenticatedError('Password is incorrect');
   }
   if (user.role !== 'customer') {
-      throw new BadRequestError('Đây là cổng đăng nhập dành cho Khách hàng.');
+      throw new BadRequestError('This login portal is for Customers only.');
   }
   const accessToken = await user.createJWT();
   await Session.deleteMany({ userID: user._id })

@@ -5,11 +5,11 @@ export const useAuthStore = create(
   persist(
     (set) => ({
       user: null,
-      accessToken: null, // Chỉ nằm trong RAM (Memory)
+      accessToken: null, // Only stored in RAM (Memory)
       isAuthenticated: false,
-      isCheckingAuth: true, // Trạng thái đang check khi F5
+      isCheckingAuth: true, // Checking state on F5
 
-      // Đăng nhập: Lưu token vào RAM, user info vào LocalStorage
+      // Login: Store token in RAM, user info in LocalStorage
       setAuth: (user, token) => {
         set({ 
           user, 
@@ -19,12 +19,12 @@ export const useAuthStore = create(
         })
       },
 
-      // Cập nhật token mới (khi refresh thành công)
+      // Update new token (when refresh succeeds)
       setAccessToken: (token) => {
         set({ accessToken: token })
       },
 
-      // Đăng xuất: Xóa sạch
+      // Logout: Clear everything
       logout: () => {
         set({ 
           user: null, 
@@ -34,12 +34,12 @@ export const useAuthStore = create(
         })
       },
       
-      // Kết thúc quá trình check (dùng khi F5 xong mà ko có user)
+      // Finish checking process (used when F5 completes with no user)
       finishChecking: () => set({ isCheckingAuth: false }),
     }),
     {
       name: 'auth-storage',
-      partialize: (state) => ({ user: state.user }), // Chỉ lưu User Info
+      partialize: (state) => ({ user: state.user }), // Only store User Info
     }
   )
 )

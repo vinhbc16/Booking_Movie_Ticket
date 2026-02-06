@@ -7,19 +7,19 @@ export const useSocket = () => {
   const socketRef = useRef(null);
 
   useEffect(() => {
-    // Chỉ khởi tạo 1 lần
+    // Initialize only once
     if (!socketRef.current) {
         socketRef.current = io(SOCKET_URL, {
             withCredentials: true,
             transports: ['websocket', 'polling'],
-            autoConnect: false // Tắt tự kết nối để ta kiểm soát ở BookingPage
+            autoConnect: false // Disable auto-connect to control in BookingPage
         });
     }
 
     return () => {
         if (socketRef.current) {
             socketRef.current.disconnect();
-            socketRef.current = null; // Reset ref khi unmount
+            socketRef.current = null; // Reset ref on unmount
         }
     };
   }, []);

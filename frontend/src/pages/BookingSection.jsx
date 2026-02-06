@@ -8,7 +8,7 @@ import { Badge } from '@/components/ui/badge'
 import { showtimeService } from '@/services/showtimeService'
 import { cn } from '@/lib/utils'
 
-// 👇 1. IMPORT TOOLTIP TỪ SHADCN
+// Import Tooltip component from shadcn
 import {
   Tooltip,
   TooltipContent,
@@ -22,14 +22,14 @@ export function BookingSection({ movieId }) {
   const [showtimes, setShowtimes] = useState([])
   const [isLoading, setIsLoading] = useState(false)
   
-  // State cho bộ lọc rạp và accordion
+  // State for theater filter and accordion
   const [selectedTheaterFilter, setSelectedTheaterFilter] = useState('all')
   const [expandedTheaters, setExpandedTheaters] = useState({}) 
 
-  // 1. Tạo danh sách 14 ngày
+  // 1. Generate list of 14 days
   const dates = Array.from({ length: 14 }, (_, i) => addDays(new Date(), i))
 
-  // 2. Fetch suất chiếu
+  // 2. Fetch showtimes
   useEffect(() => {
     if (!movieId) return
     const fetchShowtimes = async () => {
@@ -45,7 +45,7 @@ export function BookingSection({ movieId }) {
         setSelectedTheaterFilter('all')
         setExpandedTheaters({})
       } catch (error) {
-        console.error("Lỗi tải lịch chiếu:", error)
+        console.error("Error loading showtimes:", error)
       } finally {
         setIsLoading(false)
       }
@@ -53,7 +53,7 @@ export function BookingSection({ movieId }) {
     fetchShowtimes()
   }, [selectedDate, movieId])
 
-  // 3. Logic Nhóm dữ liệu
+  // 3. Group data by theater
   const groupedData = showtimes.reduce((acc, st) => {
     const tId = st.theaterId
     if (!acc[tId]) {
@@ -124,7 +124,7 @@ export function BookingSection({ movieId }) {
             )}
           >
             <Film className="w-4 h-4" />
-            Tất cả rạp
+            All Theaters
           </button>
 
           {Object.values(groupedData).map(group => (
@@ -150,7 +150,7 @@ export function BookingSection({ movieId }) {
       {/* --- C. THEATER LIST --- */}
       <div className="space-y-4">
         {isLoading ? (
-           <div className="text-center text-gray-500 py-10">Đang tải lịch chiếu...</div>
+           <div className="text-center text-gray-500 py-10">Loading showtimes...</div>
         ) : displayedTheaters.length > 0 ? (
           displayedTheaters.map((group) => {
             const isOpen = expandedTheaters[group.info.id]
@@ -159,7 +159,7 @@ export function BookingSection({ movieId }) {
             return (
               <div key={group.info.id} className="rounded-xl border border-gray-200 bg-white overflow-hidden shadow-sm transition-all hover:shadow-md">
                 
-                {/* Header Rạp */}
+                {/* Theater Header */}
                 <div 
                   className="flex items-center justify-between p-4 cursor-pointer bg-gray-50/50 hover:bg-gray-100/80 transition-colors"
                   onClick={() => toggleTheater(group.info.id)}
@@ -171,7 +171,7 @@ export function BookingSection({ movieId }) {
                       <div>
                         <h3 className="text-base font-bold text-gray-900 flex items-center gap-2">
                           {group.info.name}
-                          <span className="text-xs font-normal text-gray-400">({group.showtimes.length} suất)</span>
+                          <span className="text-xs font-normal text-gray-400">({group.showtimes.length} shows)</span>
                         </h3>
                         <p className="text-xs text-gray-500 mt-1 flex items-center gap-1">
                            <MapPin className="w-3 h-3" /> {group.info.address}
@@ -181,7 +181,7 @@ export function BookingSection({ movieId }) {
                   {isOpen ? <ChevronUp className="text-gray-400 w-5 h-5" /> : <ChevronDown className="text-gray-400 w-5 h-5" />}
                 </div>
 
-                {/* Nội dung Suất chiếu */}
+                {/* Showtime Content */}
                 {isOpen && (
                   <div className="p-4 border-t border-gray-100 animate-in slide-in-from-top-2 duration-200">
                     {uniqueRoomTypes.map(type => (
@@ -190,10 +190,10 @@ export function BookingSection({ movieId }) {
                            <Badge variant="secondary" className="bg-transparent border border-gray-300 text-gray-700 rounded-sm px-2 font-semibold">
                               {type}
                            </Badge>
-                           <span className="text-xs text-gray-400">Phụ đề tiếng Việt</span>
+                           <span className="text-xs text-gray-400">Vietnamese Subtitles</span>
                         </div>
 
-                        {/* 👇 2. CẬP NHẬT LOGIC TOOLTIP & DISABLE Ở ĐÂY */}
+                        {/* Tooltip and disable logic for seat availability */}
                         <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 gap-3">
                           {group.showtimes
                             .filter(st => st.roomType === type)
@@ -203,12 +203,12 @@ export function BookingSection({ movieId }) {
                                     <TooltipTrigger asChild>
                                         <Button
                                             variant="outline"
-                                            // Vô hiệu hóa nếu hết ghế
+                                            // Disable if no seats available
                                             disabled={st.availableSeats === 0}
                                             onClick={() => navigate(`/booking/${st._id}`)}
                                             className={cn(
                                                 "w-full h-auto py-2 px-1 border-gray-300 text-gray-700 hover:border-blue-500 hover:text-blue-600 hover:bg-blue-50 flex flex-col gap-0.5",
-                                                // Style cho trạng thái hết vé
+                                                // Style for sold out state
                                                 st.availableSeats === 0 && "opacity-50 cursor-not-allowed bg-gray-100 hover:bg-gray-100 hover:border-gray-300 hover:text-gray-400"
                                             )}
                                         >
@@ -226,7 +226,7 @@ export function BookingSection({ movieId }) {
                                         <div className="text-center">
                                             <p className="font-bold text-sm mb-1">{st.room}</p>
                                             <div className="text-xs text-gray-300">
-                                                Ghế trống: <span className={cn(
+                                                Available: <span className={cn(
                                                     "font-bold", 
                                                     st.availableSeats > 10 ? "text-green-400" : "text-red-400"
                                                 )}>
@@ -236,7 +236,7 @@ export function BookingSection({ movieId }) {
                                                 {st.totalSeats}
                                             </div>
                                             {st.availableSeats === 0 && (
-                                                <p className="text-[10px] text-red-500 mt-1 uppercase font-bold">Đã hết vé</p>
+                                                <p className="text-[10px] text-red-500 mt-1 uppercase font-bold">Sold Out</p>
                                             )}
                                         </div>
                                     </TooltipContent>
@@ -255,9 +255,9 @@ export function BookingSection({ movieId }) {
           <div className="rounded-xl border border-dashed border-gray-300 p-12 text-center bg-gray-50/50">
             <Film className="mx-auto h-12 w-12 text-gray-300 mb-3" />
             <p className="text-lg font-medium text-gray-500">
-              Chưa có lịch chiếu cho ngày này
+              No showtimes available for this date
             </p>
-            <p className="text-sm text-gray-400">Vui lòng chọn ngày khác</p>
+            <p className="text-sm text-gray-400">Please select another date</p>
           </div>
         )}
       </div>

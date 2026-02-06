@@ -13,8 +13,8 @@ import { authService } from "@/services/authService"
 import { useAuthStore } from "@/store/useAuthStore"
 
 const formSchema = z.object({
-  email: z.string().email("Email không hợp lệ"),
-  password: z.string().min(1, "Vui lòng nhập mật khẩu"),
+  email: z.string().email("Invalid email"),
+  password: z.string().min(1, "Please enter password"),
 })
 
 export function LoginForm() {
@@ -33,13 +33,13 @@ export function LoginForm() {
       const { accessToken, user } = res.data
       
       setAuth(user, accessToken)
-      toast.success(`Xin chào, ${user.name}!`)
+      toast.success(`Welcome, ${user.name}!`)
       
       const from = location.state?.from?.pathname || "/"
       navigate(from, { replace: true })
       
     } catch (error) {
-      toast.error(error.response?.data?.msg || "Đăng nhập thất bại")
+      toast.error(error.response?.data?.msg || "Login failed")
     }
   }
 
@@ -62,7 +62,7 @@ export function LoginForm() {
           name="password"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Mật khẩu</FormLabel>
+              <FormLabel>Password</FormLabel>
               <FormControl><Input type="password" {...field} /></FormControl>
               <FormMessage />
             </FormItem>
@@ -70,7 +70,7 @@ export function LoginForm() {
         />
         <Button type="submit" className="w-full" disabled={form.formState.isSubmitting}>
           {form.formState.isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-          Đăng nhập
+          Login
         </Button>
       </form>
     </Form>

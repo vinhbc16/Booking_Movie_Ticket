@@ -14,10 +14,10 @@ import { useAuthStore } from '@/store/useAuthStore'
 
 const navItems = [
   { to: 'dashboard', icon: LayoutDashboard, label: 'Dashboard' },
-  { to: 'movies', icon: Film, label: 'Quản lý phim' },
-  { to: 'theaters', icon: Building, label: 'Quản lý rạp' },
-  { to: 'showtimes', icon: CalendarClock, label: 'Quản lý suất chiếu' },
-  { to: 'users', icon: Users, label: 'Quản lý người dùng' },
+  { to: 'movies', icon: Film, label: 'Movie Management' },
+  { to: 'theaters', icon: Building, label: 'Theater Management' },
+  { to: 'showtimes', icon: CalendarClock, label: 'Showtime Management' },
+  { to: 'users', icon: Users, label: 'User Management' },
 ]
 
 function Sidebar() {
@@ -25,12 +25,12 @@ function Sidebar() {
   const navigate = useNavigate()
 
   const handleLogout = () => {
-    logout() // Xóa token
-    navigate('/') // Quay về trang trủ
+    logout() // Clear token
+    navigate('/') // Return to home page
   }
 
   return (
-    // Thêm 'flex flex-col' để dàn trang dọc
+    // Add 'flex flex-col' for vertical layout
     <aside className="sticky top-0 flex h-screen w-64 flex-col bg-sidebar-background text-sidebar-foreground shadow-lg">
       
       {/* Header Sidebar */}
@@ -51,7 +51,7 @@ function Sidebar() {
         ))}
       </nav>
 
-      {/* Footer Sidebar (Nút Đăng xuất) */}
+      {/* Footer Sidebar (Logout Button) */}
       <div className="border-t border-sidebar-border p-4">
         <button
           onClick={handleLogout}
@@ -61,7 +61,7 @@ function Sidebar() {
           )}
         >
           <LogOut className="h-5 w-5" />
-          <span className="ml-4 font-medium">Đăng xuất</span>
+          <span className="ml-4 font-medium">Logout</span>
         </button>
       </div>
     </aside>

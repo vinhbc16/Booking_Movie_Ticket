@@ -20,7 +20,7 @@ const createBooking = async (req, res) => {
             const key = `seat:${showtimeId}:${seat}`;
             const holder = await client.get(key);
 if (!holder || holder.toString() !== userId.toString()) {
-                throw new BadRequestError(`Ghế ${seat} đã hết thời gian giữ.`);
+                throw new BadRequestError(`Seat ${seat} hold time has expired.`);
             }
         }
 
@@ -68,12 +68,12 @@ if (!holder || holder.toString() !== userId.toString()) {
         res.status(201).json({ 
             booking: newBooking, 
             qrUrl,
-            msg: 'Vui lòng thanh toán để hoàn tất' 
+            msg: 'Please complete payment to finish' 
         });
 
     } catch (error) {
         console.error(error);
-        res.status(500).json({ msg: 'Lỗi tạo đơn hàng' });
+        res.status(500).json({ msg: 'Error creating order' });
     }
 };
 
@@ -81,7 +81,7 @@ const handleSePayWebhook = async (req, res) => {
     try {
         const { content, transferAmount } = req.body;
         
-        console.log("Webhook SePay nhận được:", content, transferAmount);
+        console.log("Webhook SePay received:", content, transferAmount);
 
         if (!content) return res.status(200).json({ success: false, msg: 'No content' });
 
@@ -89,7 +89,7 @@ const handleSePayWebhook = async (req, res) => {
         const match = content.match(/[A-Z0-9]{6}/); 
         
         if (!match) {
-            return res.status(200).json({ success: false, msg: 'Không tìm thấy mã đơn hàng trong nội dung' }); 
+            return res.status(200).json({ success: false, msg: 'Booking code not found in content' }); 
         }
         
         const codeFound = match[0];
@@ -100,14 +100,14 @@ const handleSePayWebhook = async (req, res) => {
         });
 
         if (!booking) {
-            return res.status(200).json({ success: false, msg: 'Đơn hàng không tồn tại hoặc đã thanh toán' });
+            return res.status(200).json({ success: false, msg: 'Order does not exist or has already been paid' });
         }
 
         if (parseFloat(transferAmount) < booking.totalPrice) {
-             return res.status(200).json({ success: false, msg: 'Chuyển thiếu tiền' });
+             return res.status(200).json({ success: false, msg: 'Insufficient transfer amount' });
         }
 
-        console.log(`Thanh toán thành công cho đơn: ${codeFound}`);
+        console.log(`Payment successful for order: ${codeFound}`);
 
 if (booking && booking.status === 'pending') {
             booking.status = 'success';
@@ -131,7 +131,7 @@ if (booking && booking.status === 'pending') {
         }
 
         io.emit(`payment_success_${booking._id}`, { 
-            msg: 'Thanh toán thành công!',
+            msg: 'Payment successful!',
             bookingId: booking._id 
         });
         }
@@ -156,14 +156,14 @@ const getBookingById = async (req, res) => {
              throw new NotFoundError('Booking not found');
         }
         if (!booking.user) {
-             console.error("Lỗi: Booking có user ID nhưng không populate được (User có thể bị xóa)");
+             console.error("Error: Booking has user ID but could not populate (User may have been deleted)");
         }
 
         const dbUserId = booking.user?._id?.toString();
         const reqUserId = req.user.userID?.toString();
 
         if (dbUserId !== reqUserId) {
-             console.log("Mismatch: Không khớp User ID");
+             console.log("Mismatch: User ID does not match");
              throw new UnauthenticatedError('Not authorized to view this booking');
         }        
         res.status(200).json({ booking });
@@ -201,18 +201,18 @@ const getMyBookings = async (req, res) => {
         if (bookings.length === 0) {
              const anyBooking = await Booking.findOne();
              if (anyBooking) {
-                 console.log("DB có vé, nhưng không khớp User ID của bạn.");
-                 console.log("User trong vé mẫu:", anyBooking.user);
-                 console.log("User của bạn:", userId);
+                 console.log("DB has tickets, but does not match your User ID.");
+                 console.log("User in sample ticket:", anyBooking.user);
+                 console.log("Your user:", userId);
              } else {
-                 console.log("Chưa có booking nào được tạo trong hệ thống.");
+                 console.log("No bookings have been created in the system yet.");
              }
         }
 
         res.status(200).json({ bookings });
     } catch (error) {
         console.error("Get My Bookings Error:", error);
-        res.status(500).json({ msg: 'Lỗi lấy danh sách vé' });
+        res.status(500).json({ msg: 'Error fetching ticket list' });
     }
 };
 

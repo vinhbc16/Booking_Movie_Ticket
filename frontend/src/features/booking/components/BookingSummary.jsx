@@ -8,9 +8,9 @@ export function BookingSummary({ showtime, selectedSeats, totalPrice, onConfirm 
 
   return (
     <div className="bg-[#1c1c2e] text-white rounded-2xl p-6 shadow-2xl h-fit sticky top-24 border border-white/10">
-      <h2 className="text-xl font-bold mb-6 border-b border-white/10 pb-4">Thông tin đặt vé</h2>
+      <h2 className="text-xl font-bold mb-6 border-b border-white/10 pb-4">Booking Information</h2>
 
-      {/* Thông tin phim */}
+      {/* Movie Info */}
       <div className="flex gap-4 mb-6">
         <img 
           src={showtime.movie.posterUrl} 
@@ -30,10 +30,10 @@ export function BookingSummary({ showtime, selectedSeats, totalPrice, onConfirm 
         </div>
       </div>
 
-      {/* Danh sách ghế */}
+      {/* Seat List */}
       <div className="mb-6 space-y-3">
         <div className="flex justify-between items-center text-sm text-gray-400">
-          <span>Ghế đã chọn ({selectedSeats.length})</span>
+          <span>Selected Seats ({selectedSeats.length})</span>
           <Ticket className="w-4 h-4" />
         </div>
         
@@ -42,33 +42,33 @@ export function BookingSummary({ showtime, selectedSeats, totalPrice, onConfirm 
             {selectedSeats.map(seat => (
               <Badge key={seat} className="bg-[#2c2c44] hover:bg-[#3c3c55] text-white px-3 py-1">
                 {seat} 
-                {/* Bạn có thể thêm nút xóa X ở đây nếu muốn */}
+                {/* You can add remove X button here if needed */}
               </Badge>
             ))}
           </div>
         ) : (
-          <p className="text-sm text-gray-600 italic">Chưa chọn ghế nào</p>
+          <p className="text-sm text-gray-600 italic">No seats selected</p>
         )}
       </div>
 
-      {/* Tổng tiền */}
+      {/* Total */}
       <div className="border-t border-white/10 pt-4 mb-6">
         <div className="flex justify-between items-end">
-          <span className="text-gray-400">Tổng cộng</span>
+          <span className="text-gray-400">Total</span>
           <span className="text-3xl font-bold text-[#F5C518]">
-            {totalPrice.toLocaleString()} đ
+            {totalPrice.toLocaleString()} VND
           </span>
         </div>
       </div>
 
-      {/* Nút đặt vé */}
+      {/* Book Button */}
       <Button 
         size="lg" 
         className="w-full bg-[#8b5cf6] hover:bg-[#7c3aed] text-white font-bold h-12 text-lg shadow-lg shadow-purple-900/20"
         disabled={selectedSeats.length === 0}
         onClick={onConfirm}
       >
-        Xác nhận thanh toán
+        Confirm Payment
       </Button>
     </div>
   )

@@ -197,7 +197,7 @@ const getDashboardStats = async (req, res) => {
 
     } catch (error) {
         console.error('Dashboard stats error:', error);
-        res.status(500).json({ msg: 'Lỗi khi lấy thống kê dashboard' });
+        res.status(500).json({ msg: 'Error fetching dashboard statistics' });
     }
 };
 
@@ -216,7 +216,7 @@ const getQuickStats = async (req, res) => {
         });
     } catch (error) {
         console.error('Quick stats error:', error);
-        res.status(500).json({ msg: 'Lỗi khi lấy thống kê nhanh' });
+        res.status(500).json({ msg: 'Error fetching quick statistics' });
     }
 };
 

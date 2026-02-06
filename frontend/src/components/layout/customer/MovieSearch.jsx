@@ -18,7 +18,7 @@ export function MovieSearch({ className }) {
   const debouncedSearchTerm = useDebounce(searchTerm, 700)
   const navigate = useNavigate()
 
-  // 1. Xử lý tìm kiếm
+  // 1. Handle search
   useEffect(() => {
     if (!debouncedSearchTerm.trim()) {
       setResults([])
@@ -40,14 +40,14 @@ export function MovieSearch({ className }) {
     fetchMovies()
   }, [debouncedSearchTerm])
 
-  // 2. Auto focus vào ô input khi mở
+  // 2. Auto focus input when opened
   useEffect(() => {
     if (isOpen && inputRef.current) {
       setTimeout(() => inputRef.current.focus(), 100)
     }
   }, [isOpen])
 
-  // 3. Đóng khi nhấn ESC
+  // 3. Close when pressing ESC
   useEffect(() => {
     const handleEsc = (e) => {
       if (e.key === 'Escape') setIsOpen(false)
@@ -56,7 +56,7 @@ export function MovieSearch({ className }) {
     return () => window.removeEventListener('keydown', handleEsc)
   }, [])
 
-  // 4. Khóa cuộn trang khi mở tìm kiếm (Optional - để trải nghiệm tốt hơn)
+  // 4. Lock page scroll when search is open (Optional - for better UX)
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = 'hidden'
@@ -71,30 +71,30 @@ export function MovieSearch({ className }) {
     navigate(`/movie/${movieId}`)
   }
 
-  // Tách phần giao diện Overlay ra biến cho gọn
+  // Extract Overlay UI to variable for cleaner code
   const SearchOverlay = (
     <div className="fixed inset-0 z-[9999] flex justify-center pt-[100px]">
-      {/* LỚP MỜ (Backdrop):
-          - z-[9999]: Đảm bảo nó nằm trên tất cả mọi thứ
-          - bg-black/80: Đen đậm
-          - backdrop-blur-sm: Làm mờ nội dung bên dưới
+      {/* BLUR LAYER (Backdrop):
+          - z-[9999]: Ensure it's on top of everything
+          - bg-black/80: Dark black
+          - backdrop-blur-sm: Blur content underneath
       */}
       <div 
         className="fixed inset-0 backdrop-blur-sm transition-opacity animate-in fade-in duration-200 bg-black/80"
         onClick={() => setIsOpen(false)} 
       />
 
-      {/* HỘP TÌM KIẾM */}
+      {/* SEARCH BOX */}
       <div className="relative z-50 w-full max-w-2xl px-4 animate-in fade-in zoom-in-95 slide-in-from-top-5 duration-200">
         <div className="overflow-hidden rounded-xl bg-white shadow-2xl ring-1 ring-white/10">
           
-          {/* Header của Box */}
+          {/* Header of Box */}
           <div className="flex items-center border-b px-4 py-4">
             <Search className="mr-3 h-6 w-6 text-gray-400" />
             <input
               ref={inputRef}
               className="flex-1 bg-transparent text-xl outline-none placeholder:text-gray-400 text-black font-medium"
-              placeholder="Tìm tên phim, diễn viên..."
+              placeholder="Search movie name, actors..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
@@ -108,13 +108,13 @@ export function MovieSearch({ className }) {
                   <span className="text-xs">ESC</span>
                 </kbd>
                 <button onClick={() => setIsOpen(false)} className="sm:hidden text-sm text-gray-500 font-medium">
-                  Hủy
+                  Cancel
                 </button>
               </div>
             )}
           </div>
 
-          {/* Phần kết quả */}
+          {/* Results Section */}
           <div className="max-h-[60vh] overflow-y-auto p-2 bg-gray-50/50">
             {isLoading ? (
               <div className="flex items-center justify-center py-12">
@@ -123,7 +123,7 @@ export function MovieSearch({ className }) {
             ) : results.length > 0 ? (
               <div className="grid gap-1">
                 <p className="px-3 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                  Kết quả phù hợp nhất
+                  Best Matches
                 </p>
                 {results.map((movie) => (
                   <div
@@ -140,7 +140,7 @@ export function MovieSearch({ className }) {
                       />
                     </div>
                     
-                    {/* Thông tin */}
+                    {/* Info */}
                     <div className="flex flex-1 flex-col justify-center gap-1">
                       <div className="flex items-start justify-between">
                         <h4 className="font-bold text-gray-900 line-clamp-1 text-lg group-hover:text-primary transition-colors">
@@ -148,12 +148,12 @@ export function MovieSearch({ className }) {
                         </h4>
                         {movie.status === 'showing' && (
                             <Badge variant="secondary" className="bg-red-50 text-red-600 border-red-100 text-[10px] whitespace-nowrap font-bold">
-                              ĐANG CHIẾU
+                              NOW SHOWING
                             </Badge>
                         )}
                         {movie.status === 'coming_soon' && (
                             <Badge variant="secondary" className="bg-yellow-50 text-yellow-600 border-red-100 text-[10px] whitespace-nowrap font-bold">
-                              SẮP CHIẾU
+                              COMING SOON
                             </Badge>
                         )}
                       </div>
@@ -182,13 +182,13 @@ export function MovieSearch({ className }) {
                 <div className="inline-flex h-16 w-16 items-center justify-center rounded-full bg-gray-100 mb-4">
                    <Search className="h-8 w-8 text-gray-400" />
                 </div>
-                <p className="text-lg font-medium text-gray-900">Không tìm thấy kết quả nào</p>
-                <p className="text-sm text-gray-500 mt-1">Hãy thử tìm với tên phim hoặc diễn viên khác</p>
+                <p className="text-lg font-medium text-gray-900">No results found</p>
+                <p className="text-sm text-gray-500 mt-1">Try searching with a different movie name or actor</p>
               </div>
             ) : (
               <div className="py-16 text-center">
                 <Search className="h-12 w-12 text-gray-200 mx-auto mb-3" />
-                <p className="text-sm text-gray-500">Nhập từ khóa để bắt đầu tìm kiếm...</p>
+                <p className="text-sm text-gray-500">Enter keywords to start searching...</p>
               </div>
             )}
           </div>
@@ -210,8 +210,8 @@ export function MovieSearch({ className }) {
         <Search className="h-5 w-5" />
       </Button>
 
-      {/* 2. Dùng createPortal để đẩy Overlay ra ngoài body
-          Điều này giúp nó thoát khỏi Header và phủ kín toàn màn hình
+      {/* 2. Use createPortal to push Overlay outside body
+          This helps it escape from Header and cover full screen
       */}
       {isOpen && createPortal(SearchOverlay, document.body)}
     </>

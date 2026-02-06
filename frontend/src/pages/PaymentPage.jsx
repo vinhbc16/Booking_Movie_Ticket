@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router';
 import { bookingService } from '@/services/bookingService';
-import { useSocket } from '@/hooks/useSocket'; // Hook socket của bạn
+import { useSocket } from '@/hooks/useSocket'; // Your socket hook
 import { Loader2, Copy, CheckCircle, Clock , ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
@@ -11,18 +11,18 @@ export default function PaymentPage() {
     const navigate = useNavigate();
     const socket = useSocket();
 
-    // Dữ liệu nhận từ trang chọn ghế
+    // Data received from seat selection page
     const { showtime, selectedSeats, totalPrice } = location.state || {};
 
     const [booking, setBooking] = useState(null);
     const [qrUrl, setQrUrl] = useState('');
     const [isLoading, setIsLoading] = useState(true);
-    const [timeLeft, setTimeLeft] = useState(600); // 10 phút đếm ngược
+    const [timeLeft, setTimeLeft] = useState(600); // 10 minute countdown
 
-    // 1. Tạo đơn hàng ngay khi vào trang (hoặc bạn có thể làm nút Xác nhận rồi mới tạo)
+    // 1. Create order immediately when entering page
     useEffect(() => {
         if (!showtime || !selectedSeats) {
-            navigate('/'); // Nếu không có dữ liệu thì đá về trang chủ
+            navigate('/'); // Redirect to home if no data
             return;
         }
 
@@ -42,8 +42,8 @@ export default function PaymentPage() {
                 
             } catch (error) {
                 console.error(error);
-                toast.error(error.response?.data?.msg || "Lỗi tạo đơn hàng");
-                navigate(-1); // Quay lại trang trước
+                toast.error(error.response?.data?.msg || "Error creating order");
+                navigate(-1); // Go back to previous page
             } finally {
                 setIsLoading(false);
             }
@@ -52,14 +52,14 @@ export default function PaymentPage() {
         createOrder();
     }, []);
 
-    // 2. Logic đếm ngược
+    // 2. Countdown logic
     useEffect(() => {
         if (!booking) return;
         const timer = setInterval(() => {
             setTimeLeft((prev) => {
                 if (prev <= 1) {
                     clearInterval(timer);
-                    navigate('/'); // Hết giờ -> Về trang chủ hoặc hiện thông báo
+                    navigate('/'); // Time expired -> Go to home or show message
                     return 0;
                 }
                 return prev - 1;
@@ -130,19 +130,19 @@ export default function PaymentPage() {
         return (
             <div className="h-screen flex items-center justify-center bg-[#0f0f1b] text-white">
                 <Loader2 className="h-10 w-10 animate-spin text-purple-500" />
-                <span className="ml-3">Đang tạo đơn hàng...</span>
+                <span className="ml-3">Creating order...</span>
             </div>
         );
     }
 
     if (!booking) return null;
 
-    // Hàm Hủy giao dịch (Nút Quay lại)
+    // Cancel transaction function (Back button)
     const handleCancel = () => {
-        // 1. Nếu có socket, bắn tin hiệu nhả ghế ngay lập tức
+        // 1. If socket exists, emit seat release signal immediately
         if (socket && booking) {
-            // Lặp qua từng ghế để nhả (hoặc backend có API release batch thì tốt hơn)
-            // Ở đây ta dùng socket release từng ghế cho nhanh
+            // Loop through each seat to release (or better if backend has batch release API)
+            // Here we use socket to release each seat for speed
             booking.seats.forEach(s => {
                 socket.emit('release_seat', { 
                     showtimeId: booking.showtime, 
@@ -152,66 +152,66 @@ export default function PaymentPage() {
             });
         }
         
-        // 2. Quay về trang chủ hoặc trang chọn ghế
-        navigate(-1); // Quay lại trang trước
+        // 2. Go back to home or seat selection page
+        navigate(-1); // Go back to previous page
     };
 
     return (
         <div className="min-h-screen bg-[#0f0f1b] text-white py-10 px-4">
-            {/* Thêm nút Back ở góc trên cùng */}
+            {/* Add Back button at top corner */}
             <div className="max-w-4xl mx-auto mb-4 pt-4">
                 <Button variant="ghost" onClick={handleCancel} className="text-gray-400 hover:text-white pl-0">
-                    <ArrowLeft className="mr-2 w-5 h-5" /> Hủy & Quay lại chọn ghế
+                    <ArrowLeft className="mr-2 w-5 h-5" /> Cancel & Back to Seat Selection
                 </Button>
             </div>
             <div className="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8">
                 
-                {/* Cột Trái: Thông tin QR */}
+                {/* Left Column: QR Info */}
                 <div className="bg-[#1c1c2e] p-8 rounded-2xl border border-white/10 flex flex-col items-center text-center">
-                    <h2 className="text-2xl font-bold mb-2 text-purple-400">Thanh toán qua VietQR</h2>
-                    <p className="text-gray-400 text-sm mb-6">Mở App ngân hàng và quét mã bên dưới</p>
+                    <h2 className="text-2xl font-bold mb-2 text-purple-400">Pay via VietQR</h2>
+                    <p className="text-gray-400 text-sm mb-6">Open your banking app and scan the code below</p>
 
-                    {/* Khung QR */}
+                    {/* QR Frame */}
                     <div className="bg-white p-4 rounded-xl shadow-lg mb-6">
                         <img src={qrUrl} alt="VietQR" className="w-64 h-64 object-contain" />
                     </div>
 
-                    {/* Đồng hồ đếm ngược */}
+                    {/* Countdown Timer */}
                     <div className="flex items-center gap-2 text-yellow-400 font-mono text-xl bg-yellow-400/10 px-4 py-2 rounded-lg border border-yellow-400/20 mb-6">
                         <Clock className="w-5 h-5" />
-                        <span>Đơn hàng hết hạn sau: {formatTime(timeLeft)}</span>
+                        <span>Order expires in: {formatTime(timeLeft)}</span>
                     </div>
 
                     <div className="w-full space-y-4 text-left">
                         <div className="bg-[#2c2c44] p-4 rounded-lg flex justify-between items-center">
                             <div>
-                                <p className="text-xs text-gray-400">Số tiền</p>
-                                <p className="text-xl font-bold text-green-400">{booking.totalPrice.toLocaleString()} đ</p>
+                                <p className="text-xs text-gray-400">Amount</p>
+                                <p className="text-xl font-bold text-green-400">{booking.totalPrice.toLocaleString()} VND</p>
                             </div>
-                            <Button variant="ghost" size="icon" onClick={() => {navigator.clipboard.writeText(booking.totalPrice); toast.success("Đã copy số tiền")}}>
+                            <Button variant="ghost" size="icon" onClick={() => {navigator.clipboard.writeText(booking.totalPrice); toast.success("Amount copied")}}>
                                 <Copy className="w-4 h-4 text-gray-400" />
                             </Button>
                         </div>
 
                         <div className="bg-[#2c2c44] p-4 rounded-lg flex justify-between items-center">
                             <div>
-                                <p className="text-xs text-gray-400">Nội dung chuyển khoản (Bắt buộc)</p>
+                                <p className="text-xs text-gray-400">Transfer Content (Required)</p>
                                 <p className="text-xl font-bold text-purple-400">{booking.bookingCode}</p>
                             </div>
-                            <Button variant="ghost" size="icon" onClick={() => {navigator.clipboard.writeText(booking.bookingCode); toast.success("Đã copy nội dung")}}>
+                            <Button variant="ghost" size="icon" onClick={() => {navigator.clipboard.writeText(booking.bookingCode); toast.success("Content copied")}}>
                                 <Copy className="w-4 h-4 text-gray-400" />
                             </Button>
                         </div>
                     </div>
                     
                     <p className="mt-6 text-xs text-gray-500 italic">
-                        *Hệ thống sẽ tự động xác nhận khi nhận được tiền. Vui lòng không tắt trình duyệt.
+                        *System will auto-confirm upon payment receipt. Please do not close browser.
                     </p>
                 </div>
 
-                {/* Cột Phải: Thông tin Vé */}
+                {/* Right Column: Ticket Info */}
                 <div className="bg-[#1c1c2e] p-8 rounded-2xl border border-white/10 h-fit">
-                    <h3 className="text-xl font-bold mb-6 border-b border-white/10 pb-4">Thông tin đặt vé</h3>
+                    <h3 className="text-xl font-bold mb-6 border-b border-white/10 pb-4">Booking Information</h3>
                     
                     <div className="flex gap-4 mb-6">
                         <img src={showtime.movie.posterUrl} className="w-20 h-28 object-cover rounded" alt="Poster" />
@@ -228,7 +228,7 @@ export default function PaymentPage() {
 
                     <div className="space-y-2 mb-6">
                         <div className="flex justify-between text-sm">
-                            <span className="text-gray-400">Ghế đã chọn</span>
+                            <span className="text-gray-400">Selected Seats</span>
                             <span className="font-bold">{selectedSeats.join(', ')}</span>
                         </div>
                         <div className="flex justify-between text-sm">
@@ -238,8 +238,8 @@ export default function PaymentPage() {
                     </div>
 
                     <div className="border-t border-white/10 pt-4 flex justify-between items-end">
-                        <span className="text-gray-400">Tổng thanh toán</span>
-                        <span className="text-2xl font-bold text-yellow-500">{booking.totalPrice.toLocaleString()} đ</span>
+                        <span className="text-gray-400">Total Payment</span>
+                        <span className="text-2xl font-bold text-yellow-500">{booking.totalPrice.toLocaleString()} VND</span>
                     </div>
                 </div>
             </div>

@@ -11,24 +11,24 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 
-// Danh sách thể loại (Bạn có thể lấy từ DB hoặc hardcode nếu ít thay đổi)
+// Genre list (You can fetch from DB or hardcode if rarely changes)
 const GENRES = [
-  "Hành động", "Hài", "Kinh dị", "Lãng mạn", "Viễn tưởng", 
-  "Hoạt hình", "Tâm lý", "Gia đình", "Chiến tranh", "Phiêu lưu"
+  "Action", "Comedy", "Horror", "Romance", "Sci-Fi", 
+  "Animation", "Drama", "Family", "War", "Adventure"
 ]
 
 export default function MoviesPage() {
   const [searchParams] = useSearchParams()
-  const statusParam = searchParams.get('status') || 'showing' // Mặc định là đang chiếu
+  const statusParam = searchParams.get('status') || 'showing' // Default is now showing
   
   const [movies, setMovies] = useState([])
   const [isLoading, setIsLoading] = useState(true)
-  const [genre, setGenre] = useState('all') // State cho bộ lọc
+  const [genre, setGenre] = useState('all') // State for filter
 
-  // Tiêu đề trang dựa theo status
-  const pageTitle = statusParam === 'showing' ? 'Phim Đang Chiếu' : 'Phim Sắp Chiếu'
+  // Page title based on status
+  const pageTitle = statusParam === 'showing' ? 'Now Showing' : 'Coming Soon'
 
-  // Fetch dữ liệu
+  // Fetch data
   useEffect(() => {
     const fetchMovies = async () => {
       setIsLoading(true)
@@ -36,18 +36,18 @@ export default function MoviesPage() {
         const res = await movieService.getPublicMovies({
           status: statusParam,
           genre: genre === 'all' ? undefined : genre,
-          limit: 20 // Lấy nhiều hơn cho trang danh sách
+          limit: 20 // Get more for list page
         })
         setMovies(res.data.moviesList || [])
       } catch (error) {
-        console.error("Lỗi tải phim:", error)
+        console.error("Error loading movies:", error)
       } finally {
         setIsLoading(false)
       }
     }
 
     fetchMovies()
-  }, [statusParam, genre]) // Chạy lại khi status hoặc genre thay đổi
+  }, [statusParam, genre]) // Re-run when status or genre changes
 
   return (
     <div className="min-h-screen bg-background-secondary pb-12">
@@ -61,7 +61,7 @@ export default function MoviesPage() {
           {/* Breadcrumb */}
           <nav className="mb-2 flex items-center gap-2 text-sm text-blue-100">
             <Link to="/" className="flex items-center hover:text-white transition-colors">
-              <Home className="mr-1 h-4 w-4" /> Trang chủ
+              <Home className="mr-1 h-4 w-4" /> Home
             </Link>
             <ChevronRight className="h-4 w-4" />
             <span className="font-semibold text-white">{pageTitle}</span>
@@ -82,13 +82,13 @@ export default function MoviesPage() {
           </div>
 
           <div className="flex items-center gap-3">
-            <span className="text-sm font-medium text-gray-600">Lọc theo:</span>
+            <span className="text-sm font-medium text-gray-600">Filter by:</span>
             <Select value={genre} onValueChange={setGenre}>
               <SelectTrigger className="w-[180px] bg-white">
-                <SelectValue placeholder="Tất cả thể loại" />
+                <SelectValue placeholder="All Genres" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">Tất cả thể loại</SelectItem>
+                <SelectItem value="all">All Genres</SelectItem>
                 {GENRES.map(g => (
                   <SelectItem key={g} value={g}>{g}</SelectItem>
                 ))}
@@ -112,7 +112,7 @@ export default function MoviesPage() {
           </div>
         ) : (
           <div className="py-20 text-center">
-            <p className="text-xl text-gray-500">Không tìm thấy phim nào phù hợp.</p>
+            <p className="text-xl text-gray-500">No matching movies found.</p>
             {/* <button 
               onClick={() => setGenre('all')}
               className="mt-4 text-primary hover:underline"

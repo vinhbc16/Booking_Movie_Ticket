@@ -60,7 +60,7 @@ export function MovieSection({ title, movies, linkToAll, background = "bg-white"
             className="group rounded-full border-grey-300 px-8 text-gray-600 hover:border-blue-600 hover:text-blue-600"
             onClick={() => navigate(linkToAll)}
           >
-            Xem thêm
+            View More
             <ChevronRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
           </Button>
         </div>

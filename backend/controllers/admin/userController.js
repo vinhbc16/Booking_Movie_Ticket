@@ -42,9 +42,9 @@ const deleteUser = async (req, res) => {
 }
 const getUserDetail = async (req, res) => {
     const { id } = req.params;
-    const user = await User.findById(id).select('-password'); // Không trả về password
+    const user = await User.findById(id).select('-password'); // Do not return password
     if (!user) {
-        throw new NotFoundError(`Không tìm thấy user với ID: ${id}`);
+        throw new NotFoundError(`User not found with ID: ${id}`);
     }
     res.status(200).json({ user });
 };
@@ -54,7 +54,7 @@ const updateUserByAdmin = async (req, res) => {
     const { name, phone, birthDate , sex } = req.body;
 
     if (!name) {
-        throw new BadRequestError('Tên không được để trống');
+        throw new BadRequestError('Name is required');
     }
 
     const user = await User.findByIdAndUpdate(
@@ -64,10 +64,10 @@ const updateUserByAdmin = async (req, res) => {
     ).select('-password');
 
     if (!user) {
-        throw new NotFoundError(`Không tìm thấy user với ID: ${id}`);
+        throw new NotFoundError(`User not found with ID: ${id}`);
     }
 
-    res.status(200).json({ msg: 'Cập nhật thành công', user });
+    res.status(200).json({ msg: 'Update successful', user });
 };
 
 module.exports = {

@@ -17,9 +17,9 @@ import {
 } from "@/components/ui/dropdown-menu" 
 
 const navItems = [
-  { label: 'Phim', to: '/movies' },
-  { label: 'Rạp chiếu', to: '/theaters' },
-  { label: 'Ưu đãi', to: '/promotions' },
+  { label: 'Movies', to: '/movies' },
+  { label: 'Theaters', to: '/theaters' },
+  { label: 'Promotions', to: '/promotions' },
 ]
 
 export function CustomerHeader() {
@@ -31,17 +31,17 @@ export function CustomerHeader() {
 
   const handleLogout = async () => {
     try{
-    // 1. Gọi API để Backend xóa Session & Cookie
+    // 1. Call API for Backend to delete Session & Cookie
       await authService.customerLogout(); 
     } catch (error) {
-      console.error("Lỗi khi gọi API logout:", error);
+      console.error("Error calling logout API:", error);
     } finally {
-      // 2. BẤT KỂ API CÓ CHẠY ĐƯỢC HAY KHÔNG, FRONTEND PHẢI TỰ XÓA MÌNH
-      logout(); // Hàm này của Zustand sẽ set user = null
+      // 2. REGARDLESS OF API SUCCESS, FRONTEND MUST CLEAN ITSELF
+      logout(); // This Zustand function will set user = null
       
-      // 3. Xóa thủ công localStorage nếu Zustand persist bị kẹt (Biện pháp mạnh)
+      // 3. Manually delete localStorage if Zustand persist is stuck (Strong measure)
       localStorage.removeItem('auth-storage');
-    navigate('/') // Quay về trang login hoặc trang chủ sau khi logout
+    navigate('/') // Return to login page or home after logout
   }
   }
   const location = useLocation()
@@ -58,20 +58,20 @@ export function CustomerHeader() {
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
 
-  // 1. Tạo biến xác định màu sắc chung cho các nút (Menu, Search, User)
-  // Nếu ở trang chủ VÀ chưa cuộn -> Màu trắng (cho nền trong suốt)
-  // Ngược lại -> Màu đen/xám (cho nền trắng)
+  // Create variable to determine common colors for buttons (Menu, Search, User)
+  // If on homepage AND not scrolled -> White color (for transparent background)
+  // Otherwise -> Black/gray (for white background)
   const itemClass = isHomePage && !isScrolled
     ? "text-white hover:bg-white/20 hover:text-white" 
     : "text-gray-700 hover:bg-gray-100 hover:text-primary";
 
   return (
     <motion.header
-    // Trạng thái ban đầu: Dịch lên trên 100% (khuất màn hình) và mờ
+    // Initial state: Translate up 100% (off screen) and fade
       initial={{ y: -100, opacity: 0 }}
-      // Trạng thái đích: Về vị trí 0 và rõ nét
+      // Target state: Back to position 0 and visible
       animate={{ y: 0, opacity: 1 }}
-      // Cấu hình: Chạy trong 0.5s
+      // Config: Run in 0.5s
       transition={{ duration: 1 }}
       className={`fixed top-0 z-50 w-full transition-all duration-300 ${
         isHomePage 
@@ -118,27 +118,27 @@ export function CustomerHeader() {
               <DropdownMenuTrigger asChild>
                 <Button variant="outline" className="gap-2">
                   <User className="h-4 w-4" />
-                  <span className="hidden md:inline">{user.name || "Tài khoản"}</span>
+                  <span className="hidden md:inline">{user.name || "Account"}</span>
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
-                <DropdownMenuLabel>Tài khoản của tôi</DropdownMenuLabel>
+                <DropdownMenuLabel>My Account</DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={() => navigate('/profile')}>
-                  <Settings className="mr-2 h-4 w-4" /> Hồ sơ
+                  <Settings className="mr-2 h-4 w-4" /> Profile
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => navigate('/my-tickets')}>
                 <Ticket className="mr-2 h-4 w-4" />
-                <span>Vé của tôi</span>
+                <span>My Tickets</span>
               </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={handleLogout} className="text-destructive focus:text-destructive">
-                  <LogOut className="mr-2 h-4 w-4" /> Đăng xuất
+                  <LogOut className="mr-2 h-4 w-4" /> Logout
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           ) : (
-            <Button className="bg-[#e4b50d] hover:bg-[#b79105] text-[#322e21]" onClick={() => navigate('/auth')}>Đăng nhập</Button>
+            <Button className="bg-[#e4b50d] hover:bg-[#b79105] text-[#322e21]" onClick={() => navigate('/auth')}>Login</Button>
           )}
         </div>
       </div>

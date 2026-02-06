@@ -1,13 +1,9 @@
 require('dotenv').config()
 const mongoose = require('mongoose')
 
-// 1. CÁC TÙY CHỌN KẾT NỐI
 const connectionOptions = {
-  // Gửi "ping" (heartbeat) đến DB mỗi 10 giây để giữ kết nối "sống"
   heartbeatFrequencyMS: 10000,
-  // Hủy một hoạt động nếu không thể chọn được server trong 5 giây
   serverSelectionTimeoutMS: 5000,
-  // Hủy một hoạt động socket sau 45 giây không hoạt động
   socketTimeoutMS: 45000
 };
 

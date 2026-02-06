@@ -11,13 +11,13 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { authService } from "@/services/authService"
 
 const formSchema = z.object({
-  username: z.string().min(3, "Tên phải có ít nhất 3 ký tự"),
-  email: z.string().email("Email không hợp lệ"),
-  phone: z.string().min(10, "Số điện thoại không hợp lệ"),
-  password: z.string().min(6, "Mật khẩu tối thiểu 6 ký tự"),
+  username: z.string().min(3, "Name must be at least 3 characters"),
+  email: z.string().email("Invalid email"),
+  phone: z.string().min(10, "Invalid phone number"),
+  password: z.string().min(6, "Password must be at least 6 characters"),
   confirmPassword: z.string()
 }).refine((data) => data.password === data.confirmPassword, {
-  message: "Mật khẩu không khớp",
+  message: "Passwords do not match",
   path: ["confirmPassword"],
 })
 
@@ -29,7 +29,7 @@ export function SignUpForm() {
 
   const onSubmit = async (values) => {
     try {
-      // Map 'username' -> 'name' cho đúng backend
+      // Map 'username' -> 'name' for backend
       await authService.customerRegister({
         name: values.username,
         email: values.email,
@@ -37,11 +37,11 @@ export function SignUpForm() {
         password: values.password
       })
       
-      toast.success("Đăng ký thành công! Vui lòng đăng nhập.")
-      // Reset form hoặc chuyển tab sang login (tuỳ logic UI cha)
+      toast.success("Registration successful! Please login.")
+      // Reset form or switch tab to login (depends on parent UI logic)
       
     } catch (error) {
-      toast.error(error.response?.data?.msg || "Đăng ký thất bại")
+      toast.error(error.response?.data?.msg || "Registration failed")
     }
   }
 
@@ -53,7 +53,7 @@ export function SignUpForm() {
           name="username"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Tên người dùng</FormLabel>
+              <FormLabel>Username</FormLabel>
               <FormControl><Input {...field} /></FormControl>
               <FormMessage />
             </FormItem>
@@ -75,7 +75,7 @@ export function SignUpForm() {
           name="phone"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Số điện thoại</FormLabel>
+              <FormLabel>Phone Number</FormLabel>
               <FormControl><Input {...field} /></FormControl>
               <FormMessage />
             </FormItem>
@@ -86,7 +86,7 @@ export function SignUpForm() {
           name="password"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Mật khẩu</FormLabel>
+              <FormLabel>Password</FormLabel>
               <FormControl><Input type="password" {...field} /></FormControl>
               <FormMessage />
             </FormItem>
@@ -97,7 +97,7 @@ export function SignUpForm() {
           name="confirmPassword"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Xác nhận mật khẩu</FormLabel>
+              <FormLabel>Confirm Password</FormLabel>
               <FormControl><Input type="password" {...field} /></FormControl>
               <FormMessage />
             </FormItem>
@@ -105,7 +105,7 @@ export function SignUpForm() {
         />
         <Button type="submit" className="w-full" disabled={form.formState.isSubmitting}>
           {form.formState.isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-          Tạo tài khoản
+          Create Account
         </Button>
       </form>
     </Form>

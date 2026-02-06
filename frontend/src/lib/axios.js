@@ -5,33 +5,33 @@ const BASE_URL = "http://localhost:3000/api/v1"
 
 const api = axios.create({
   baseURL: BASE_URL,
-  withCredentials: true, // Để gửi kèm cookie refreshToken
+  withCredentials: true, // To send refreshToken cookie
   headers: {
     "Content-Type": "application/json",
   },
 })
 
-// 🚀 1. REQUEST INTERCEPTOR (Thêm đoạn này để fix lỗi F5)
-// Trước khi gửi request đi, luôn lấy token mới nhất từ Store
+// 1. REQUEST INTERCEPTOR (Added to fix F5 issue)
+// Before sending request, always get the latest token from Store
 api.interceptors.request.use(
   (config) => {
     const token = useAuthStore.getState().accessToken;
 
-    // --- ĐOẠN CODE FIX LỖI ---
+    // --- FIX CODE ---
     if (token) {
-        // 1. Nếu token là String chuẩn -> Dùng luôn
+        // 1. If token is a standard String -> Use it
         if (typeof token === 'string') {
             config.headers["Authorization"] = `Bearer ${token}`;
         } 
-        // 2. Nếu token là Object (lỗi bạn đang gặp {}) -> Cố gắng lấy string bên trong
+        // 2. If token is Object (error case {}) -> Try to get string inside
         else if (typeof token === 'object') {
-            console.warn("⚠️ Token bị lưu sai định dạng Object:", token);
+            console.warn("Warning: Token saved in wrong Object format:", token);
             
-            // Nếu trong object có key accessToken thì lấy nó
+            // If object has accessToken key, use it
             if (token.accessToken && typeof token.accessToken === 'string') {
                 config.headers["Authorization"] = `Bearer ${token.accessToken}`;
             } 
-            // Nếu là object rỗng {} thì KHÔNG gửi header (coi như chưa login)
+            // If empty object {} -> Don't send header (treat as not logged in)
         }
     }
     // -------------------------
@@ -41,12 +41,12 @@ api.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-// 2. RESPONSE INTERCEPTOR (Giữ nguyên logic cũ của bạn)
+// 2. RESPONSE INTERCEPTOR (Keep existing logic)
 api.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config
-    // Logic refresh token cũ của bạn...
+    // Existing refresh token logic...
     if (
         error.response?.status === 401 && 
         !originalRequest._retry && 
@@ -57,10 +57,10 @@ api.interceptors.response.use(
         const res = await axios.post(`${BASE_URL}/auth/refresh-token`, {}, { withCredentials: true })
         const { accessToken, user } = res.data 
         
-        // Cập nhật store
+        // Update store
         useAuthStore.getState().setAuth(user, accessToken)
         
-        // Gắn token mới vào request đang bị lỗi và gửi lại
+        // Attach new token to failed request and retry
         originalRequest.headers["Authorization"] = `Bearer ${accessToken}`
         return api(originalRequest)
       } catch (refreshError) {
